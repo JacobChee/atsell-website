@@ -60,7 +60,7 @@ function useInView(threshold = 0.2) {
 
 function NavBar({ scrolled }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const links = ["Services", "Why Us", "Results", "Testimonials", "Pricing"];
+  const links = ["Services", "Why Us", "Results", "Testimonials", "Pricing", "Calculator"];
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
@@ -889,6 +889,214 @@ function Pricing() {
   );
 }
 
+function Calculator() {
+  const [tab, setTab] = useState("shopee_mall");
+  const [price, setPrice] = useState(1298);
+  const [voucher, setVoucher] = useState(0);
+  const [appType, setAppType] = useState("sda");
+  const [isCampaign, setIsCampaign] = useState(false);
+
+  const RATES = {
+    shopee_mall: { txn: 0.0327, sda_comm: 0.109, mda_comm: 0.0872, service: 0.0327, comm_cap: 80, service_cap: 60 },
+    shopee_nonmall: { txn: 0.0218, sda_comm: 0.0545, service: 0.0327, comm_cap: 30, service_cap: 30 },
+    lazada: { txn_rate: 0.03, sda_comm: 0.09, mda_comm: 0.07, spa_rate: 0.04, gst: 1.09, comm_cap: 75, spa_cap: 60, voucher_rate: 0.06, voucher_cap: 40 },
+  };
+
+  const fmt = (n) => "$" + Math.abs(n).toFixed(2);
+  const pct = (n) => (n * 100).toFixed(1) + "%";
+
+  const switchTab = (t) => {
+    setTab(t);
+    setPrice(t === "lazada" ? 258 : t === "shopee_nonmall" ? 998 : 1298);
+    setVoucher(0); setAppType("sda"); setIsCampaign(false);
+  };
+
+  let fees = [], totalFees = 0, payout = 0;
+  const v = voucher;
+  const net = price - v;
+
+  if (tab === "shopee_mall") {
+    const r = RATES.shopee_mall;
+    const cr = appType === "mda" ? r.mda_comm : r.sda_comm;
+    const txn = net * r.txn;
+    const comm = Math.min(net * cr, r.comm_cap);
+    const svc = Math.min(net * r.service, r.service_cap);
+    totalFees = v + txn + comm + svc;
+    payout = price - totalFees;
+    if (v > 0) fees.push({ label: "Voucher", detail: "", val: v });
+    fees.push({ label: "Transaction fee", detail: pct(r.txn), val: txn });
+    fees.push({ label: "Commission", detail: `${pct(cr)}, cap $${r.comm_cap}`, val: comm });
+    fees.push({ label: "Service fee", detail: `${pct(r.service)}, cap $${r.service_cap}`, val: svc });
+  } else if (tab === "shopee_nonmall") {
+    const r = RATES.shopee_nonmall;
+    const txn = net * r.txn;
+    const comm = Math.min(net * r.sda_comm, r.comm_cap);
+    const svc = Math.min(net * r.service, r.service_cap);
+    totalFees = v + txn + comm + svc;
+    payout = price - totalFees;
+    if (v > 0) fees.push({ label: "Voucher", detail: "", val: v });
+    fees.push({ label: "Transaction fee", detail: pct(r.txn), val: txn });
+    fees.push({ label: "Commission", detail: `${pct(r.sda_comm)}, cap $${r.comm_cap}`, val: comm });
+    fees.push({ label: "Service fee", detail: `${pct(r.service)}, cap $${r.service_cap}`, val: svc });
+  } else {
+    const r = RATES.lazada;
+    const cr = appType === "mda" ? r.mda_comm : r.sda_comm;
+    const autoV = v === 0 ? Math.min(price * r.voucher_rate, r.voucher_cap) : v;
+    const lazNet = price - autoV;
+    const txn = lazNet * r.txn_rate * r.gst;
+    const comm = Math.min(cr * lazNet * r.gst, r.comm_cap * r.gst);
+    const spa = Math.min(r.spa_rate * lazNet * r.gst, r.spa_cap * r.gst);
+    totalFees = autoV + txn + comm + spa;
+    payout = price - totalFees;
+    fees.push({ label: "Voucher", detail: "seller-funded", val: autoV });
+    fees.push({ label: "Transaction fee", detail: "3% + GST", val: txn });
+    fees.push({ label: "Commission", detail: `${pct(cr)} + GST, cap $${Math.round(r.comm_cap * r.gst)}`, val: comm });
+    fees.push({ label: "SPA fee", detail: `4% + GST, cap $${Math.round(r.spa_cap * r.gst)}`, val: spa });
+  }
+
+  const feeRate = price > 0 ? (totalFees / price * 100) : 0;
+  const keepRate = price > 0 ? (payout / price * 100) : 0;
+
+  const tabStyle = (t) => ({
+    padding: "10px 22px", cursor: "pointer", fontSize: 13, fontWeight: 600,
+    letterSpacing: "0.3px", border: "none", borderRadius: "12px 12px 0 0",
+    background: tab === t ? COLORS.navy : COLORS.gray200,
+    color: tab === t ? COLORS.white : COLORS.gray500,
+    fontFamily: "'DM Sans', sans-serif", transition: "all 0.25s",
+  });
+
+  const inputStyle = {
+    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
+    borderRadius: 8, padding: "10px 14px", color: COLORS.white,
+    fontFamily: "'DM Sans', sans-serif", fontSize: 14, width: 180, outline: "none",
+  };
+
+  return (
+    <section id="calculator" style={{ background: COLORS.offWhite, padding: "100px 24px" }}>
+      <div style={{ maxWidth: 700, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gold,
+            textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700,
+          }}>Free Tool</span>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)",
+            fontWeight: 700, color: COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2,
+          }}>Marketplace fee calculator</h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.gray500,
+            maxWidth: 480, margin: "0 auto", lineHeight: 1.6,
+          }}>See exactly how much you keep after platform fees on Shopee and Lazada.</p>
+        </div>
+
+        <div style={{ display: "flex", gap: 6 }}>
+          <button style={tabStyle("shopee_mall")} onClick={() => switchTab("shopee_mall")}>Shopee Mall</button>
+          <button style={tabStyle("shopee_nonmall")} onClick={() => switchTab("shopee_nonmall")}>Shopee Non-Mall</button>
+          <button style={tabStyle("lazada")} onClick={() => switchTab("lazada")}>Lazada</button>
+        </div>
+
+        <div style={{
+          background: `linear-gradient(135deg, ${COLORS.navyDark}, ${COLORS.navy})`,
+          borderRadius: "0 16px 16px 16px", padding: 32, color: COLORS.white,
+        }}>
+          {/* Inputs */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{
+              fontSize: 11, textTransform: "uppercase", letterSpacing: "1.5px",
+              color: COLORS.gold, fontWeight: 700, marginBottom: 16,
+              fontFamily: "'DM Sans', sans-serif",
+            }}>Input</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+              <label style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", minWidth: 130, fontFamily: "'DM Sans', sans-serif" }}>Selling price ($)</label>
+              <input type="number" value={price} step="1" onChange={e => setPrice(+e.target.value)} style={inputStyle} />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+              <label style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", minWidth: 130, fontFamily: "'DM Sans', sans-serif" }}>Voucher ($)</label>
+              <input type="number" value={voucher} step="1" onChange={e => setVoucher(+e.target.value)} style={inputStyle} />
+            </div>
+            {tab !== "shopee_nonmall" && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", minWidth: 130, fontFamily: "'DM Sans', sans-serif" }}>Appliance type</label>
+                <select value={appType} onChange={e => setAppType(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
+                  <option value="sda" style={{ background: COLORS.navy }}>Small (SDA)</option>
+                  <option value="mda" style={{ background: COLORS.navy }}>Large (MDA)</option>
+                </select>
+              </div>
+            )}
+            {tab === "lazada" && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", minWidth: 130, fontFamily: "'DM Sans', sans-serif" }}>Campaign day?</label>
+                <select value={isCampaign ? "yes" : "no"} onChange={e => setIsCampaign(e.target.value === "yes")} style={{ ...inputStyle, appearance: "auto" }}>
+                  <option value="no" style={{ background: COLORS.navy }}>No (BAU)</option>
+                  <option value="yes" style={{ background: COLORS.navy }}>Yes</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "20px 0" }} />
+
+          {/* Fee breakdown */}
+          <div>
+            <div style={{
+              fontSize: 11, textTransform: "uppercase", letterSpacing: "1.5px",
+              color: COLORS.gold, fontWeight: 700, marginBottom: 16,
+              fontFamily: "'DM Sans', sans-serif",
+            }}>Fee breakdown</div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", fontSize: 14, fontFamily: "'DM Sans', sans-serif" }}>
+              <span style={{ color: "rgba(255,255,255,0.55)" }}>Selling price</span>
+              <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{fmt(price)}</span>
+            </div>
+            {fees.map((f, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", fontSize: 14, fontFamily: "'DM Sans', sans-serif" }}>
+                <span style={{ color: "rgba(255,255,255,0.55)" }}>
+                  {f.label} {f.detail && <span style={{ opacity: 0.5 }}>({f.detail})</span>}
+                </span>
+                <span style={{ fontWeight: 600, color: "#f09595" }}>-{fmt(f.val)}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Payout */}
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "12px 16px", background: "rgba(232,168,56,0.1)",
+            border: "1px solid rgba(232,168,56,0.2)", borderRadius: 12, marginTop: 16,
+          }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.8)", fontFamily: "'DM Sans', sans-serif" }}>Estimated payout</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: COLORS.gold }}>{fmt(payout)}</span>
+          </div>
+
+          {/* Metrics */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginTop: 20 }}>
+            {[
+              { label: "Total fees", val: fmt(totalFees), gold: false },
+              { label: "Fee rate", val: feeRate.toFixed(1) + "%", gold: false },
+              { label: "You keep", val: fmt(payout), gold: true },
+              { label: "Keep rate", val: keepRate.toFixed(1) + "%", gold: true },
+            ].map((m, i) => (
+              <div key={i} style={{
+                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 12, padding: 14, textAlign: "center",
+              }}>
+                <div style={{
+                  fontSize: 11, color: "rgba(255,255,255,0.45)", textTransform: "uppercase",
+                  letterSpacing: "0.8px", marginBottom: 4, fontFamily: "'DM Sans', sans-serif",
+                }}>{m.label}</div>
+                <div style={{
+                  fontSize: 18, fontWeight: 700, color: m.gold ? COLORS.gold : COLORS.white,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>{m.val}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Footer() {
   return (
     <footer style={{
@@ -1007,6 +1215,7 @@ export default function AtsellLanding() {
       <Results />
       <Testimonials />
       <Pricing />
+      <Calculator />
       <Footer />
     </div>
   );
