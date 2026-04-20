@@ -980,10 +980,31 @@ const OTHER_RATES = {
   },
 };
 
-const LAZADA_RATES = {
-  txn_rate: 0.03, sda_comm: 0.09, mda_comm: 0.07,
-  spa_rate: 0.04, gst: 1.09, comm_cap: 81.75,
-  spa_cap: 65.40, voucher_rate: 0.06, voucher_cap: 40,
+// Lazada rates effective 9 Feb 2026
+// Formula: Commission = Rate × (Item Price − Seller Promotions) × 1.09 (GST)
+// Transaction fee: 3% + GST on (net + shipping)
+const LAZADA_GST = 1.09;
+const LAZADA_TXN = 0.03;
+
+// Seller types: spa = SPA seller, non_spa = Non-SPA seller
+// Store types: marketplace = Lazada Marketplace, lazmall = LazMall
+const LAZADA_CATEGORIES = {
+  marketplace: [
+    { key: "electronics_main",   label: "Electronics (Mobiles, Tablets, Computers, Laptops, Camera, Gaming)", spa: { rate: 0.05, cap: 30 }, non_spa: { rate: 0.085, cap: 30 } },
+    { key: "electronics_others", label: "Other Electronics",                                                    spa: { rate: 0.065, cap: 30 }, non_spa: { rate: 0.10,  cap: 30 } },
+    { key: "diapering_milk_pet", label: "Diapering & Potty, Milk Formula & Baby Food, Pet Supplies",           spa: { rate: 0.06,  cap: 60 }, non_spa: { rate: 0.085, cap: 60 } },
+    { key: "alcoholic_grocery",  label: "Alcoholic Beverages & All Groceries",                                  spa: { rate: 0.065, cap: 60 }, non_spa: { rate: 0.10,  cap: 60 } },
+    { key: "other_categories",   label: "All Other Categories",                                                 spa: { rate: 0.065, cap: 60 }, non_spa: { rate: 0.10,  cap: 60 } },
+  ],
+  lazmall: [
+    { key: "electronics_core",   label: "Electronics — Mobiles & Tablets, Desktop Computers, Laptops",         spa: { rate: 0.07, cap: 75 }, non_spa: { rate: 0.09, cap: 75 } },
+    { key: "large_appliances",   label: "Electronics — Large Home Appliances",                                  spa: { rate: 0.07, cap: 75 }, non_spa: { rate: 0.11, cap: 75 } },
+    { key: "camera_drones",      label: "Electronics — Camera & Drones",                                        spa: { rate: 0.08, cap: 75 }, non_spa: { rate: 0.10, cap: 75 } },
+    { key: "comp_components",    label: "Electronics — Computer Components, Printers & Scanners, Software",     spa: { rate: 0.09, cap: 75 }, non_spa: { rate: 0.11, cap: 75 } },
+    { key: "gaming_others_elec", label: "Electronics — Gaming Devices & Software, Other Electronics",           spa: { rate: 0.09, cap: 75 }, non_spa: { rate: 0.13, cap: 75 } },
+    { key: "non_elec",           label: "Non-Electronics (Diapering, Milk Formula, Pet Supplies, Alcoholic Bev)", spa: { rate: 0.09, cap: 150 }, non_spa: { rate: 0.11, cap: 150 } },
+    { key: "other_categories",   label: "All Other Categories",                                                 spa: { rate: 0.09, cap: 150 }, non_spa: { rate: 0.13, cap: 150 } },
+  ],
 };
 
 // TikTok Shop rates (GST inclusive, from 1 Apr 2026)
@@ -1231,6 +1252,9 @@ function Calculator() {
   const [subcat, setSubcat]         = useState("mobile_phones_tablets");
   const [appType, setAppType]       = useState("sda");
   const [isCampaign, setIsCampaign] = useState(false);
+  const [lazStoreType, setLazStoreType] = useState("marketplace");
+  const [lazSellerType, setLazSellerType] = useState("spa");
+  const [lazCat, setLazCat]         = useState("electronics_main");
   const [tiktokCat, setTiktokCat]   = useState("fashion");
   const [isBxp, setIsBxp]           = useState(false);
 
@@ -1241,6 +1265,7 @@ function Calculator() {
     setProgramme("non_coins");
     setSubcat("mobile_phones_tablets");
     setAppType("sda"); setIsCampaign(false);
+    setLazStoreType("marketplace"); setLazSellerType("spa"); setLazCat("electronics_main");
     setTiktokCat("fashion"); setIsBxp(false);
   };
 
@@ -1284,19 +1309,18 @@ function Calculator() {
     if (voucher > 0) fees.push({ label: "Seller discount", detail: "deducted from base", val: voucher });
     fees.push({ label: "Platform commission", detail: calcPct(rate) + " (GST incl.)", val: comm });
   } else {
-    const r     = LAZADA_RATES;
-    const cr    = appType === "mda" ? r.mda_comm : r.sda_comm;
-    const autoV = voucher === 0 ? Math.min(price * r.voucher_rate, r.voucher_cap) : voucher;
-    const net   = price - autoV;
-    const txn   = (net + shipping) * r.txn_rate * r.gst;
-    const comm  = Math.min(cr * net * r.gst, r.comm_cap);
-    const spa   = Math.min(r.spa_rate * net * r.gst, r.spa_cap);
-    totalFees   = autoV + txn + comm + spa;
+    // Lazada — effective 9 Feb 2026
+    const cats = LAZADA_CATEGORIES[lazStoreType];
+    const catObj = cats.find(c => c.key === lazCat) ?? cats[0];
+    const rateObj = catObj[lazSellerType];
+    const net   = price - voucher;
+    const comm  = Math.min(rateObj.rate * net * LAZADA_GST, rateObj.cap * LAZADA_GST);
+    const txn   = (net + shipping) * LAZADA_TXN * LAZADA_GST;
+    totalFees   = voucher + txn + comm;
     payout      = price - totalFees;
-    fees.push({ label: "Voucher",         detail: "seller-funded (auto)",                                                       val: autoV });
-    fees.push({ label: "Transaction fee", detail: "3% + GST" + (shipping > 0 ? " (incl. shipping)" : ""),                      val: txn });
-    fees.push({ label: "Commission",      detail: calcPct(cr) + " + GST, cap $" + r.comm_cap + " — " + (isCampaign ? "Campaign" : "BAU"), val: comm });
-    fees.push({ label: "SPA fee",         detail: "4% + GST, cap $" + r.spa_cap,                                               val: spa });
+    if (voucher > 0) fees.push({ label: "Seller promotions", detail: "deducted from base", val: voucher });
+    fees.push({ label: "Transaction fee", detail: "3% + GST" + (shipping > 0 ? " (incl. shipping)" : ""), val: txn });
+    fees.push({ label: "Commission",      detail: calcPct(rateObj.rate) + " + GST, cap $" + (rateObj.cap * LAZADA_GST).toFixed(2) + " — " + (lazStoreType === "lazmall" ? "LazMall" : "Marketplace") + " " + (lazSellerType === "spa" ? "SPA" : "Non-SPA"), val: comm });
   }
 
   const feeRate  = price > 0 ? (totalFees / price) * 100 : 0;
@@ -1395,28 +1419,45 @@ function Calculator() {
 
             {tab === "lazada" && (
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={labelStyle}>Store type</label>
+                <select value={lazStoreType} onChange={e => { setLazStoreType(e.target.value); setLazCat(e.target.value === "lazmall" ? "electronics_core" : "electronics_main"); }} style={{ ...inputStyle, appearance: "auto" }}>
+                  <option value="marketplace" style={{ background: CALC_COLORS.navy }}>Lazada Marketplace</option>
+                  <option value="lazmall"     style={{ background: CALC_COLORS.navy }}>LazMall</option>
+                </select>
+              </div>
+            )}
+
+            {tab === "lazada" && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={labelStyle}>Seller type</label>
+                <select value={lazSellerType} onChange={e => setLazSellerType(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
+                  <option value="spa"     style={{ background: CALC_COLORS.navy }}>SPA Seller</option>
+                  <option value="non_spa" style={{ background: CALC_COLORS.navy }}>Non-SPA Seller</option>
+                </select>
+              </div>
+            )}
+
+            {tab === "lazada" && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={labelStyle}>Category</label>
+                <select value={lazCat} onChange={e => setLazCat(e.target.value)} style={{ ...inputStyle, appearance: "auto", width: 280 }}>
+                  {LAZADA_CATEGORIES[lazStoreType].map(c => (
+                    <option key={c.key} value={c.key} style={{ background: CALC_COLORS.navy }}>{c.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {tab === "lazada" && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <label style={labelStyle}>Customer shipping ($)</label>
                 <input type="number" value={shipping} step="1" onChange={e => setShipping(+e.target.value)} style={inputStyle} />
               </div>
             )}
 
             {tab === "lazada" && (
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <label style={labelStyle}>Appliance type</label>
-                <select value={appType} onChange={e => setAppType(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
-                  <option value="sda" style={{ background: CALC_COLORS.navy }}>Small (SDA)</option>
-                  <option value="mda" style={{ background: CALC_COLORS.navy }}>Large (MDA)</option>
-                </select>
-              </div>
-            )}
-
-            {tab === "lazada" && (
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <label style={labelStyle}>Campaign day?</label>
-                <select value={isCampaign ? "yes" : "no"} onChange={e => setIsCampaign(e.target.value === "yes")} style={{ ...inputStyle, appearance: "auto" }}>
-                  <option value="no"  style={{ background: CALC_COLORS.navy }}>No (BAU)</option>
-                  <option value="yes" style={{ background: CALC_COLORS.navy }}>Yes</option>
-                </select>
+              <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(232,168,56,0.08)", border: "1px solid rgba(232,168,56,0.15)", borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
+                ✦ Rates effective 9 Feb 2026. Formula: Commission = Rate × (Price − Seller Promotions) + 9% GST. Transaction fee 3% + GST.
               </div>
             )}
 
