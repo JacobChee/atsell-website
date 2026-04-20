@@ -975,6 +975,37 @@ const LAZADA_RATES = {
   spa_cap: 65.40, voucher_rate: 0.06, voucher_cap: 40,
 };
 
+// TikTok Shop rates (GST inclusive, from 1 Apr 2026)
+// Most categories: 8.175% standard / 7.085% BXP discounted
+// Lower-rate categories: 6.540% standard / 5.450% BXP discounted
+const TIKTOK_CATEGORIES = [
+  // Standard rate (8.175% / 7.085%)
+  { key: "fashion",              label: "Fashion (Clothing, Shoes, Bags, Accessories)", stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "beauty",               label: "Beauty & Personal Care",                       stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "food_beverages",       label: "Food & Beverages",                             stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "health",               label: "Health & Wellness",                            stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "baby_maternity",       label: "Baby & Maternity",                             stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "home_supplies",        label: "Home Supplies & Decor",                        stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "pet_supplies",         label: "Pet Supplies",                                 stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "sports_outdoor",       label: "Sports & Outdoor",                             stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "toys_collectibles",    label: "Toys, Hobbies & Collectibles",                 stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "automotive",           label: "Automotive & Motorcycle",                      stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "furniture",            label: "Furniture & Home Improvement",                 stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "books_media",          label: "Books, Magazines & Audio",                     stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "tools_hardware",       label: "Tools & Hardware",                             stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "mobile_accessories",   label: "Mobile Phone Accessories",                     stdRate: 0.08175, bxpRate: 0.07085 },
+  { key: "audio_video",          label: "Audio & Video Equipment",                      stdRate: 0.08175, bxpRate: 0.07085 },
+  // Lower rate (6.540% / 5.450%)
+  { key: "computers_office",     label: "Computers & Office Equipment",                 stdRate: 0.06540, bxpRate: 0.05450 },
+  { key: "phones_tablets",       label: "Mobile Phones & Tablets",                      stdRate: 0.06540, bxpRate: 0.05450 },
+  { key: "cameras_photography",  label: "Cameras & Photography",                        stdRate: 0.06540, bxpRate: 0.05450 },
+  { key: "household_appliances", label: "Household Appliances (Large & Small)",         stdRate: 0.06540, bxpRate: 0.05450 },
+  { key: "gaming_consoles",      label: "Gaming & Consoles",                            stdRate: 0.06540, bxpRate: 0.05450 },
+  { key: "smart_wearables",      label: "Smart & Wearable Devices",                     stdRate: 0.06540, bxpRate: 0.05450 },
+  { key: "vouchers_virtual",     label: "Vouchers & Virtual Products",                  stdRate: 0.06540, bxpRate: 0.05450 },
+  { key: "massage_chairs",       label: "Massage Chairs",                               stdRate: 0.06540, bxpRate: 0.05450 },
+];
+
 const calcFmt      = (n) => "$" + Math.abs(n).toFixed(2);
 const calcPct      = (n) => (n * 100).toFixed(2) + "%";
 const calcComm     = (rate, cap, base) => cap !== null ? Math.min(rate * base, cap) : rate * base;
@@ -1189,14 +1220,17 @@ function Calculator() {
   const [subcat, setSubcat]         = useState("mobile_phones_tablets");
   const [appType, setAppType]       = useState("sda");
   const [isCampaign, setIsCampaign] = useState(false);
+  const [tiktokCat, setTiktokCat]   = useState("fashion");
+  const [isBxp, setIsBxp]           = useState(false);
 
   const switchTab = (t) => {
     setTab(t);
-    setPrice(t === "lazada" ? 258 : t === "shopee_nonmall" ? 998 : 1298);
+    setPrice(t === "lazada" ? 258 : t === "tiktok" ? 500 : t === "shopee_nonmall" ? 998 : 1298);
     setVoucher(0); setShipping(0);
     setProgramme("non_coins");
     setSubcat("mobile_phones_tablets");
     setAppType("sda"); setIsCampaign(false);
+    setTiktokCat("fashion"); setIsBxp(false);
   };
 
   let fees = [], totalFees = 0, payout = 0;
@@ -1245,6 +1279,17 @@ function Calculator() {
     fees.push({ label: "SPA fee",         detail: "4% + GST, cap $" + r.spa_cap,                                               val: spa });
   }
 
+  if (tab === "tiktok") {
+    const catObj = TIKTOK_CATEGORIES.find(c => c.key === tiktokCat) ?? TIKTOK_CATEGORIES[0];
+    const rate   = isBxp ? catObj.bxpRate : catObj.stdRate;
+    const net    = price - voucher;
+    const comm   = net * rate;
+    totalFees    = comm;
+    payout       = price - totalFees;
+    if (voucher > 0) fees.push({ label: "Seller discount", detail: "deducted from base", val: voucher });
+    fees.push({ label: "Platform commission", detail: calcPct(rate) + " (GST incl.)", val: comm });
+  }
+
   const feeRate  = price > 0 ? (totalFees / price) * 100 : 0;
   const keepRate = price > 0 ? (payout    / price) * 100 : 0;
 
@@ -1273,7 +1318,8 @@ function Calculator() {
     fontFamily: "'DM Sans', sans-serif",
   };
 
-  const isShopee       = tab !== "lazada";
+  const isShopee       = tab === "shopee_mall" || tab === "shopee_nonmall";
+  const isTiktok        = tab === "tiktok";
   const electronics    = SUBCATEGORIES.filter(s => s.group === "Electronics");
   const nonElectronics = SUBCATEGORIES.filter(s => s.group === "Non-Electronics");
 
@@ -1290,10 +1336,11 @@ function Calculator() {
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: 6 }}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <button style={tabStyle("shopee_mall")}    onClick={() => switchTab("shopee_mall")}>Shopee Mall</button>
           <button style={tabStyle("shopee_nonmall")} onClick={() => switchTab("shopee_nonmall")}>Shopee Non-Mall</button>
           <button style={tabStyle("lazada")}         onClick={() => switchTab("lazada")}>Lazada</button>
+          <button style={tabStyle("tiktok")}         onClick={() => switchTab("tiktok")}>TikTok Shop</button>
         </div>
 
         <div style={{ background: "linear-gradient(135deg, " + CALC_COLORS.navyDark + ", " + CALC_COLORS.navy + ")", borderRadius: "0 16px 16px 16px", padding: 32, color: CALC_COLORS.white }}>
@@ -1364,9 +1411,43 @@ function Calculator() {
               </div>
             )}
 
+            {isTiktok && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={labelStyle}>Category</label>
+                <select value={tiktokCat} onChange={e => setTiktokCat(e.target.value)} style={{ ...inputStyle, appearance: "auto", width: 280 }}>
+                  <optgroup label="── Standard rate (8.175%) ──" style={{ background: CALC_COLORS.navy }}>
+                    {TIKTOK_CATEGORIES.filter(c => c.stdRate > 0.07).map(c => (
+                      <option key={c.key} value={c.key} style={{ background: CALC_COLORS.navy }}>{c.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="── Lower rate (6.54%) ──" style={{ background: CALC_COLORS.navy }}>
+                    {TIKTOK_CATEGORIES.filter(c => c.stdRate < 0.07).map(c => (
+                      <option key={c.key} value={c.key} style={{ background: CALC_COLORS.navy }}>{c.label}</option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+            )}
+
+            {isTiktok && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={labelStyle}>Seller programme</label>
+                <select value={isBxp ? "bxp" : "std"} onChange={e => setIsBxp(e.target.value === "bxp")} style={{ ...inputStyle, appearance: "auto" }}>
+                  <option value="std" style={{ background: CALC_COLORS.navy }}>Standard seller</option>
+                  <option value="bxp" style={{ background: CALC_COLORS.navy }}>Bonus Extra Program (BXP)</option>
+                </select>
+              </div>
+            )}
+
             {isShopee && (
               <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(232,168,56,0.08)", border: "1px solid rgba(232,168,56,0.15)", borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
                 ✦ Rates reflect Shopee commission schedule effective from 1 Jan 2026 (incl. GST)
+              </div>
+            )}
+
+            {isTiktok && (
+              <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(232,168,56,0.08)", border: "1px solid rgba(232,168,56,0.15)", borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
+                ✦ Formula: (Item Price − Seller Discount) × Rate. Rates effective from 1 Apr 2026 (incl. GST)
               </div>
             )}
           </div>
