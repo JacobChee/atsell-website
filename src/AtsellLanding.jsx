@@ -889,17 +889,6 @@ function Pricing() {
   );
 }
 
-import { useState, useEffect, useRef } from "react";
-
-const COLORS = {
-  navy: "#1a2744",
-  navyDark: "#111b33",
-  white: "#ffffff",
-  offWhite: "#f7f6f3",
-  gold: "#e8a838",
-  gray200: "#e8e8e8",
-  gray500: "#6b7280",
-};
 
 // ─── RATE TABLES ─────────────────────────────────────────────────────────────
 
@@ -986,13 +975,11 @@ const LAZADA_RATES = {
   spa_cap: 65.40, voucher_rate: 0.06, voucher_cap: 40,
 };
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const calcFmt      = (n) => "$" + Math.abs(n).toFixed(2);
+const calcPct      = (n) => (n * 100).toFixed(2) + "%";
+const calcComm     = (rate, cap, base) => cap !== null ? Math.min(rate * base, cap) : rate * base;
 
-const fmt      = (n) => "$" + Math.abs(n).toFixed(2);
-const pct      = (n) => (n * 100).toFixed(2) + "%";
-const calcComm = (rate, cap, base) => cap !== null ? Math.min(rate * base, cap) : rate * base;
-
-// ─── WATERFALL CHART (pure Canvas) ───────────────────────────────────────────
+// ─── WATERFALL CHART ─────────────────────────────────────────────────────────
 
 function WaterfallChart({ price, fees, payout }) {
   const canvasRef = useRef(null);
@@ -1022,7 +1009,6 @@ function WaterfallChart({ price, fees, payout }) {
     const maxVal = price * 1.08;
     const toY    = (v) => PAD.top + chartH - (v / maxVal) * chartH;
 
-    // grid lines + y-axis labels
     const steps = 4;
     for (let i = 0; i <= steps; i++) {
       const v = (price / steps) * i;
@@ -1052,7 +1038,6 @@ function WaterfallChart({ price, fees, payout }) {
         barTop = toY(payout); barBottom = PAD.top + chartH;
       }
 
-      const barH = Math.max(barBottom - barTop, 2);
       const palettes = {
         start:  { fill: "rgba(136,135,128,0.5)", stroke: "#888780" },
         fee:    { fill: "rgba(226,75,74,0.7)",   stroke: "#E24B4A" },
@@ -1076,16 +1061,14 @@ function WaterfallChart({ price, fees, payout }) {
       ctx.fill();
       ctx.stroke();
 
-      // value label above bar
       ctx.fillStyle = bar.type === "fee" ? "#f09595" : (bar.type === "payout" ? "#5DCAA5" : "rgba(255,255,255,0.7)");
       ctx.font      = "bold 11px 'DM Sans', sans-serif";
       ctx.textAlign = "center";
       const dispVal = bar.type === "fee"
-        ? "-" + fmt(bar.val)
-        : fmt(bar.type === "start" ? price : payout);
+        ? "-" + calcFmt(bar.val)
+        : calcFmt(bar.type === "start" ? price : payout);
       ctx.fillText(dispVal, x + barW / 2, barTop - 7);
 
-      // x-axis label
       ctx.fillStyle = "rgba(255,255,255,0.4)";
       ctx.font      = "11px 'DM Sans', sans-serif";
       ctx.textAlign = "center";
@@ -1093,7 +1076,6 @@ function WaterfallChart({ price, fees, payout }) {
         ctx.fillText(line, x + barW / 2, PAD.top + chartH + 16 + li * 14);
       });
 
-      // dashed connector to next bar
       if (bar.type === "fee" && i < bars.length - 1) {
         const nextX = PAD.left + (i + 1) * (barW + gap);
         ctx.strokeStyle = "rgba(255,255,255,0.12)";
@@ -1117,7 +1099,7 @@ function WaterfallChart({ price, fees, payout }) {
   );
 }
 
-// ─── BREAKDOWN TABLE ──────────────────────────────────────────────────────────
+// ─── BREAKDOWN TABLE ─────────────────────────────────────────────────────────
 
 function BreakdownTable({ price, fees, payout, feeRate, keepRate }) {
   const row = {
@@ -1125,63 +1107,52 @@ function BreakdownTable({ price, fees, payout, feeRate, keepRate }) {
     padding: "9px 0", borderBottom: "1px solid rgba(255,255,255,0.06)",
     fontFamily: "'DM Sans', sans-serif", fontSize: 13,
   };
-  const col = (flex, align = "right") => ({ flex: `0 0 ${flex}`, textAlign: align });
+  const col = (flex, align = "right") => ({ flex: "0 0 " + flex, textAlign: align });
 
   let running = price;
 
   return (
     <div>
-      {/* Header */}
       <div style={{ ...row, fontSize: 11, color: "rgba(255,255,255,0.28)", letterSpacing: "0.8px", textTransform: "uppercase" }}>
         <span style={col("38%", "left")}>Item</span>
         <span style={col("22%")}>Rate / detail</span>
         <span style={col("18%")}>Amount</span>
         <span style={col("22%")}>Running total</span>
       </div>
-
-      {/* Selling price */}
       <div style={{ ...row, color: "rgba(255,255,255,0.75)" }}>
         <span style={col("38%", "left")}>Selling price</span>
         <span style={{ ...col("22%"), color: "rgba(255,255,255,0.28)" }}>—</span>
-        <span style={{ ...col("18%"), fontWeight: 600 }}>{fmt(price)}</span>
-        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.4)" }}>{fmt(price)}</span>
+        <span style={{ ...col("18%"), fontWeight: 600 }}>{calcFmt(price)}</span>
+        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.4)" }}>{calcFmt(price)}</span>
       </div>
-
-      {/* Fee rows */}
       {fees.map((f, i) => {
         running -= f.val;
         return (
           <div key={i} style={{ ...row, color: "rgba(255,255,255,0.55)" }}>
             <span style={col("38%", "left")}>{f.label}</span>
             <span style={{ ...col("22%"), color: "rgba(255,255,255,0.28)", fontSize: 11 }}>{f.detail || "—"}</span>
-            <span style={{ ...col("18%"), fontWeight: 600, color: "#f09595" }}>-{fmt(f.val)}</span>
-            <span style={{ ...col("22%"), color: "rgba(255,255,255,0.38)" }}>{fmt(running)}</span>
+            <span style={{ ...col("18%"), fontWeight: 600, color: "#f09595" }}>-{calcFmt(f.val)}</span>
+            <span style={{ ...col("22%"), color: "rgba(255,255,255,0.38)" }}>{calcFmt(running)}</span>
           </div>
         );
       })}
-
-      {/* Payout row */}
       <div style={{
         ...row, borderBottom: "none", marginTop: 8,
         background: "rgba(29,158,117,0.1)", borderRadius: 8,
-        padding: "11px 12px", color: COLORS.white,
+        padding: "11px 12px", color: "#ffffff",
       }}>
         <span style={{ ...col("38%", "left"), fontWeight: 600 }}>Estimated payout</span>
-        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
-          {keepRate.toFixed(1)}% keep rate
-        </span>
-        <span style={{ ...col("18%"), fontWeight: 700, color: "#5DCAA5", fontSize: 15 }}>{fmt(payout)}</span>
-        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
-          {feeRate.toFixed(1)}% in fees
-        </span>
+        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{keepRate.toFixed(1)}% keep rate</span>
+        <span style={{ ...col("18%"), fontWeight: 700, color: "#5DCAA5", fontSize: 15 }}>{calcFmt(payout)}</span>
+        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{feeRate.toFixed(1)}% in fees</span>
       </div>
     </div>
   );
 }
 
-// ─── LEGEND ───────────────────────────────────────────────────────────────────
+// ─── LEGEND ──────────────────────────────────────────────────────────────────
 
-function Legend() {
+function CalcLegend() {
   const item = (color, label) => (
     <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "rgba(255,255,255,0.38)", fontFamily: "'DM Sans', sans-serif" }}>
       <span style={{ width: 10, height: 10, borderRadius: 2, background: color, display: "inline-block", flexShrink: 0 }} />
@@ -1197,9 +1168,19 @@ function Legend() {
   );
 }
 
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+// ─── CALCULATOR ──────────────────────────────────────────────────────────────
 
-export default function Calculator() {
+function Calculator() {
+  const CALC_COLORS = {
+    navy: "#1a2744",
+    navyDark: "#111b33",
+    white: "#ffffff",
+    offWhite: "#f7f6f3",
+    gold: "#e8a838",
+    gray200: "#e8e8e8",
+    gray500: "#6b7280",
+  };
+
   const [tab, setTab]               = useState("shopee_mall");
   const [price, setPrice]           = useState(1298);
   const [voucher, setVoucher]       = useState(0);
@@ -1218,7 +1199,6 @@ export default function Calculator() {
     setAppType("sda"); setIsCampaign(false);
   };
 
-  // ── Fee calculations ──
   let fees = [], totalFees = 0, payout = 0;
 
   if (tab === "shopee_mall") {
@@ -1231,9 +1211,9 @@ export default function Calculator() {
     totalFees  = voucher + txn + comm + svc;
     payout     = price - totalFees;
     if (voucher > 0) fees.push({ label: "Voucher",         detail: "seller-funded",                           val: voucher });
-    fees.push({ label: "Transaction fee", detail: pct(r.txn),                                                 val: txn });
-    fees.push({ label: "Commission",      detail: `${pct(cr)}${commCap ? `, cap $${commCap}` : ", no cap"}`,  val: comm });
-    fees.push({ label: "Service fee",     detail: `${pct(r.service)}, cap $${r.service_cap}`,                 val: svc });
+    fees.push({ label: "Transaction fee", detail: calcPct(r.txn),                                             val: txn });
+    fees.push({ label: "Commission",      detail: calcPct(cr) + (commCap ? ", cap $" + commCap : ", no cap"), val: comm });
+    fees.push({ label: "Service fee",     detail: calcPct(r.service) + ", cap $" + r.service_cap,             val: svc });
 
   } else if (tab === "shopee_nonmall") {
     const r = OTHER_RATES.shopee_nonmall;
@@ -1245,9 +1225,9 @@ export default function Calculator() {
     totalFees  = voucher + txn + comm + svc;
     payout     = price - totalFees;
     if (voucher > 0) fees.push({ label: "Voucher",         detail: "seller-funded",                           val: voucher });
-    fees.push({ label: "Transaction fee", detail: pct(r.txn),                                                 val: txn });
-    fees.push({ label: "Commission",      detail: `${pct(cr)}${commCap ? `, cap $${commCap}` : ", no cap"}`,  val: comm });
-    fees.push({ label: "Service fee",     detail: `${pct(r.service)}, cap $${r.service_cap}`,                 val: svc });
+    fees.push({ label: "Transaction fee", detail: calcPct(r.txn),                                             val: txn });
+    fees.push({ label: "Commission",      detail: calcPct(cr) + (commCap ? ", cap $" + commCap : ", no cap"), val: comm });
+    fees.push({ label: "Service fee",     detail: calcPct(r.service) + ", cap $" + r.service_cap,             val: svc });
 
   } else {
     const r     = LAZADA_RATES;
@@ -1259,27 +1239,26 @@ export default function Calculator() {
     const spa   = Math.min(r.spa_rate * net * r.gst, r.spa_cap);
     totalFees   = autoV + txn + comm + spa;
     payout      = price - totalFees;
-    fees.push({ label: "Voucher",         detail: "seller-funded (auto)",                                                        val: autoV });
-    fees.push({ label: "Transaction fee", detail: `3% + GST${shipping > 0 ? " (incl. shipping)" : ""}`,                         val: txn });
-    fees.push({ label: "Commission",      detail: `${pct(cr)} + GST, cap $${r.comm_cap} — ${isCampaign ? "Campaign" : "BAU"}`,  val: comm });
-    fees.push({ label: "SPA fee",         detail: `4% + GST, cap $${r.spa_cap}`,                                                val: spa });
+    fees.push({ label: "Voucher",         detail: "seller-funded (auto)",                                                       val: autoV });
+    fees.push({ label: "Transaction fee", detail: "3% + GST" + (shipping > 0 ? " (incl. shipping)" : ""),                      val: txn });
+    fees.push({ label: "Commission",      detail: calcPct(cr) + " + GST, cap $" + r.comm_cap + " — " + (isCampaign ? "Campaign" : "BAU"), val: comm });
+    fees.push({ label: "SPA fee",         detail: "4% + GST, cap $" + r.spa_cap,                                               val: spa });
   }
 
   const feeRate  = price > 0 ? (totalFees / price) * 100 : 0;
   const keepRate = price > 0 ? (payout    / price) * 100 : 0;
 
-  // ── Styles ──
   const tabStyle = (t) => ({
     padding: "10px 22px", cursor: "pointer", fontSize: 13, fontWeight: 600,
     letterSpacing: "0.3px", border: "none", borderRadius: "12px 12px 0 0",
-    background: tab === t ? COLORS.navy : COLORS.gray200,
-    color: tab === t ? COLORS.white : COLORS.gray500,
+    background: tab === t ? CALC_COLORS.navy : CALC_COLORS.gray200,
+    color: tab === t ? CALC_COLORS.white : CALC_COLORS.gray500,
     fontFamily: "'DM Sans', sans-serif", transition: "all 0.25s",
   });
 
   const inputStyle = {
     background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: 8, padding: "10px 14px", color: COLORS.white,
+    borderRadius: 8, padding: "10px 14px", color: CALC_COLORS.white,
     fontFamily: "'DM Sans', sans-serif", fontSize: 14, width: 220, outline: "none",
   };
 
@@ -1290,7 +1269,7 @@ export default function Calculator() {
 
   const sectionLabel = {
     fontSize: 11, textTransform: "uppercase", letterSpacing: "1.5px",
-    color: COLORS.gold, fontWeight: 700, marginBottom: 16,
+    color: CALC_COLORS.gold, fontWeight: 700, marginBottom: 16,
     fontFamily: "'DM Sans', sans-serif",
   };
 
@@ -1299,30 +1278,26 @@ export default function Calculator() {
   const nonElectronics = SUBCATEGORIES.filter(s => s.group === "Non-Electronics");
 
   return (
-    <section id="calculator" style={{ background: COLORS.offWhite, padding: "100px 24px" }}>
+    <section id="calculator" style={{ background: CALC_COLORS.offWhite, padding: "100px 24px" }}>
       <div style={{ maxWidth: 700, margin: "0 auto" }}>
-
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gold, textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700 }}>Free Tool</span>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, color: COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2 }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: CALC_COLORS.gold, textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700 }}>Free Tool</span>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, color: CALC_COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2 }}>
             Marketplace fee calculator
           </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.gray500, maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: CALC_COLORS.gray500, maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
             See exactly how much you keep after platform fees on Shopee and Lazada.
           </p>
         </div>
 
-        {/* Tabs */}
         <div style={{ display: "flex", gap: 6 }}>
           <button style={tabStyle("shopee_mall")}    onClick={() => switchTab("shopee_mall")}>Shopee Mall</button>
           <button style={tabStyle("shopee_nonmall")} onClick={() => switchTab("shopee_nonmall")}>Shopee Non-Mall</button>
           <button style={tabStyle("lazada")}         onClick={() => switchTab("lazada")}>Lazada</button>
         </div>
 
-        <div style={{ background: `linear-gradient(135deg, ${COLORS.navyDark}, ${COLORS.navy})`, borderRadius: "0 16px 16px 16px", padding: 32, color: COLORS.white }}>
+        <div style={{ background: "linear-gradient(135deg, " + CALC_COLORS.navyDark + ", " + CALC_COLORS.navy + ")", borderRadius: "0 16px 16px 16px", padding: 32, color: CALC_COLORS.white }}>
 
-          {/* ── INPUTS ── */}
           <div style={{ marginBottom: 24 }}>
             <div style={sectionLabel}>Input</div>
 
@@ -1342,8 +1317,8 @@ export default function Calculator() {
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <label style={labelStyle}>Programme</label>
                 <select value={programme} onChange={e => setProgramme(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
-                  <option value="coins"     style={{ background: COLORS.navy }}>Coins Cashback Programme</option>
-                  <option value="non_coins" style={{ background: COLORS.navy }}>Non-Coins Cashback Programme</option>
+                  <option value="coins"     style={{ background: CALC_COLORS.navy }}>Coins Cashback Programme</option>
+                  <option value="non_coins" style={{ background: CALC_COLORS.navy }}>Non-Coins Cashback Programme</option>
                 </select>
               </div>
             )}
@@ -1352,11 +1327,11 @@ export default function Calculator() {
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <label style={labelStyle}>Sub-category</label>
                 <select value={subcat} onChange={e => setSubcat(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
-                  <optgroup label="── Electronics ──" style={{ background: COLORS.navy }}>
-                    {electronics.map(s => <option key={s.key} value={s.key} style={{ background: COLORS.navy }}>{s.label}</option>)}
+                  <optgroup label="── Electronics ──" style={{ background: CALC_COLORS.navy }}>
+                    {electronics.map(s => <option key={s.key} value={s.key} style={{ background: CALC_COLORS.navy }}>{s.label}</option>)}
                   </optgroup>
-                  <optgroup label="── Non-Electronics ──" style={{ background: COLORS.navy }}>
-                    {nonElectronics.map(s => <option key={s.key} value={s.key} style={{ background: COLORS.navy }}>{s.label}</option>)}
+                  <optgroup label="── Non-Electronics ──" style={{ background: CALC_COLORS.navy }}>
+                    {nonElectronics.map(s => <option key={s.key} value={s.key} style={{ background: CALC_COLORS.navy }}>{s.label}</option>)}
                   </optgroup>
                 </select>
               </div>
@@ -1373,8 +1348,8 @@ export default function Calculator() {
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <label style={labelStyle}>Appliance type</label>
                 <select value={appType} onChange={e => setAppType(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
-                  <option value="sda" style={{ background: COLORS.navy }}>Small (SDA)</option>
-                  <option value="mda" style={{ background: COLORS.navy }}>Large (MDA)</option>
+                  <option value="sda" style={{ background: CALC_COLORS.navy }}>Small (SDA)</option>
+                  <option value="mda" style={{ background: CALC_COLORS.navy }}>Large (MDA)</option>
                 </select>
               </div>
             )}
@@ -1383,8 +1358,8 @@ export default function Calculator() {
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <label style={labelStyle}>Campaign day?</label>
                 <select value={isCampaign ? "yes" : "no"} onChange={e => setIsCampaign(e.target.value === "yes")} style={{ ...inputStyle, appearance: "auto" }}>
-                  <option value="no"  style={{ background: COLORS.navy }}>No (BAU)</option>
-                  <option value="yes" style={{ background: COLORS.navy }}>Yes</option>
+                  <option value="no"  style={{ background: CALC_COLORS.navy }}>No (BAU)</option>
+                  <option value="yes" style={{ background: CALC_COLORS.navy }}>Yes</option>
                 </select>
               </div>
             )}
@@ -1398,31 +1373,26 @@ export default function Calculator() {
 
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "4px 0 24px" }} />
 
-          {/* ── PAYOUT HERO ── */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "rgba(232,168,56,0.1)", border: "1px solid rgba(232,168,56,0.2)", borderRadius: 12, marginBottom: 28 }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.8)", fontFamily: "'DM Sans', sans-serif" }}>Estimated payout</span>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: COLORS.gold }}>{fmt(payout)}</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: CALC_COLORS.gold }}>{calcFmt(payout)}</span>
           </div>
 
-          {/* ── WATERFALL CHART ── */}
           <div style={sectionLabel}>Fee waterfall</div>
-          <Legend />
+          <CalcLegend />
           <WaterfallChart price={price} fees={fees} payout={payout} />
 
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "24px 0 20px" }} />
 
-          {/* ── BREAKDOWN TABLE ── */}
           <div style={sectionLabel}>Fee breakdown</div>
-          <BreakdownTable
-            price={price} fees={fees} payout={payout}
-            feeRate={feeRate} keepRate={keepRate}
-          />
+          <BreakdownTable price={price} fees={fees} payout={payout} feeRate={feeRate} keepRate={keepRate} />
 
         </div>
       </div>
     </section>
   );
 }
+
 function Footer() {
   return (
     <footer style={{
