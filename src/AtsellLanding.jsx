@@ -964,9 +964,20 @@ const SUBCATEGORIES = [
   { key: "all_other_non_electronics",          label: "All Other Non-Electronics Sub-categories",      group: "Non-Electronics" },
 ];
 
+// Shopee fee structure differs by programme (from 1 Jan 2026):
+// Coins Cashback sellers:    txn fee + commission + service fee (coins cashback fee)
+// Non-Coins Cashback sellers: txn fee + commission only (no service/cashback fee)
+// Transaction fee is 3.27% for both Mall and Non-Mall for Non-Coins sellers
+// For Coins sellers, txn is 2.18% Non-Mall / 3.27% Mall, plus 3.27% service fee
 const OTHER_RATES = {
-  shopee_mall:    { txn: 0.0327, service: 0.0327, service_cap: 60 },
-  shopee_nonmall: { txn: 0.0218, service: 0.0327, service_cap: 30 },
+  shopee_mall: {
+    coins:     { txn: 0.0327, service: 0.0327, service_cap: 60 },
+    non_coins: { txn: 0.0327, service: 0,       service_cap: 0  },
+  },
+  shopee_nonmall: {
+    coins:     { txn: 0.0218, service: 0.0327, service_cap: 30 },
+    non_coins: { txn: 0.0327, service: 0,       service_cap: 0  },
+  },
 };
 
 const LAZADA_RATES = {
@@ -1236,32 +1247,32 @@ function Calculator() {
   let fees = [], totalFees = 0, payout = 0;
 
   if (tab === "shopee_mall") {
-    const r = OTHER_RATES.shopee_mall;
+    const r = OTHER_RATES.shopee_mall[programme];
     const { rate: cr, cap: commCap } = MALL_COMMISSION[programme][subcat] ?? MALL_COMMISSION[programme]["all_other_non_electronics"];
     const net  = price - voucher;
     const txn  = net * r.txn;
     const comm = calcComm(cr, commCap, net);
-    const svc  = Math.min(net * r.service, r.service_cap);
+    const svc  = r.service > 0 ? Math.min(net * r.service, r.service_cap) : 0;
     totalFees  = voucher + txn + comm + svc;
     payout     = price - totalFees;
     if (voucher > 0) fees.push({ label: "Voucher",         detail: "seller-funded",                           val: voucher });
     fees.push({ label: "Transaction fee", detail: calcPct(r.txn),                                             val: txn });
     fees.push({ label: "Commission",      detail: calcPct(cr) + (commCap ? ", cap $" + commCap : ", no cap"), val: comm });
-    fees.push({ label: "Service fee",     detail: calcPct(r.service) + ", cap $" + r.service_cap,             val: svc });
+    if (svc > 0) fees.push({ label: "Coins cashback fee", detail: calcPct(r.service) + ", cap $" + r.service_cap, val: svc });
 
   } else if (tab === "shopee_nonmall") {
-    const r = OTHER_RATES.shopee_nonmall;
+    const r = OTHER_RATES.shopee_nonmall[programme];
     const { rate: cr, cap: commCap } = NONMALL_COMMISSION[programme][subcat] ?? NONMALL_COMMISSION[programme]["all_other_non_electronics"];
     const net  = price - voucher;
     const txn  = net * r.txn;
     const comm = calcComm(cr, commCap, net);
-    const svc  = Math.min(net * r.service, r.service_cap);
+    const svc  = r.service > 0 ? Math.min(net * r.service, r.service_cap) : 0;
     totalFees  = voucher + txn + comm + svc;
     payout     = price - totalFees;
     if (voucher > 0) fees.push({ label: "Voucher",         detail: "seller-funded",                           val: voucher });
     fees.push({ label: "Transaction fee", detail: calcPct(r.txn),                                             val: txn });
     fees.push({ label: "Commission",      detail: calcPct(cr) + (commCap ? ", cap $" + commCap : ", no cap"), val: comm });
-    fees.push({ label: "Service fee",     detail: calcPct(r.service) + ", cap $" + r.service_cap,             val: svc });
+    if (svc > 0) fees.push({ label: "Coins cashback fee", detail: calcPct(r.service) + ", cap $" + r.service_cap, val: svc });
 
   } else if (tab === "tiktok") {
     const catObj = TIKTOK_CATEGORIES.find(c => c.key === tiktokCat) ?? TIKTOK_CATEGORIES[0];
@@ -1439,7 +1450,7 @@ function Calculator() {
 
             {isShopee && (
               <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(232,168,56,0.08)", border: "1px solid rgba(232,168,56,0.15)", borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
-                ✦ Rates reflect Shopee commission schedule effective from 1 Jan 2026 (incl. GST)
+                ✦ Rates effective 1 Jan 2026 (incl. GST). Non-Coins sellers pay transaction fee + commission only. Coins Cashback sellers also pay the coins cashback fee.
               </div>
             )}
 
