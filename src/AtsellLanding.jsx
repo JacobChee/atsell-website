@@ -1263,6 +1263,15 @@ function Calculator() {
     fees.push({ label: "Commission",      detail: calcPct(cr) + (commCap ? ", cap $" + commCap : ", no cap"), val: comm });
     fees.push({ label: "Service fee",     detail: calcPct(r.service) + ", cap $" + r.service_cap,             val: svc });
 
+  } else if (tab === "tiktok") {
+    const catObj = TIKTOK_CATEGORIES.find(c => c.key === tiktokCat) ?? TIKTOK_CATEGORIES[0];
+    const rate   = isBxp ? catObj.bxpRate : catObj.stdRate;
+    const net    = price - voucher;
+    const comm   = net * rate;
+    totalFees    = comm;
+    payout       = price - totalFees;
+    if (voucher > 0) fees.push({ label: "Seller discount", detail: "deducted from base", val: voucher });
+    fees.push({ label: "Platform commission", detail: calcPct(rate) + " (GST incl.)", val: comm });
   } else {
     const r     = LAZADA_RATES;
     const cr    = appType === "mda" ? r.mda_comm : r.sda_comm;
@@ -1277,17 +1286,6 @@ function Calculator() {
     fees.push({ label: "Transaction fee", detail: "3% + GST" + (shipping > 0 ? " (incl. shipping)" : ""),                      val: txn });
     fees.push({ label: "Commission",      detail: calcPct(cr) + " + GST, cap $" + r.comm_cap + " — " + (isCampaign ? "Campaign" : "BAU"), val: comm });
     fees.push({ label: "SPA fee",         detail: "4% + GST, cap $" + r.spa_cap,                                               val: spa });
-  }
-
-  if (tab === "tiktok") {
-    const catObj = TIKTOK_CATEGORIES.find(c => c.key === tiktokCat) ?? TIKTOK_CATEGORIES[0];
-    const rate   = isBxp ? catObj.bxpRate : catObj.stdRate;
-    const net    = price - voucher;
-    const comm   = net * rate;
-    totalFees    = comm;
-    payout       = price - totalFees;
-    if (voucher > 0) fees.push({ label: "Seller discount", detail: "deducted from base", val: voucher });
-    fees.push({ label: "Platform commission", detail: calcPct(rate) + " (GST incl.)", val: comm });
   }
 
   const feeRate  = price > 0 ? (totalFees / price) * 100 : 0;
