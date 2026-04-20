@@ -205,7 +205,7 @@ function Hero() {
           }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.gold, animation: "pulse 2s infinite" }} />
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gold, fontWeight: 600, letterSpacing: "0.5px" }}>
-              Official Lazada & Shopee & TiktokShop Partner
+              Official Lazada, Shopee & TikTok Shop Partner
             </span>
           </div>
 
@@ -213,19 +213,18 @@ function Hero() {
             fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px, 5vw, 62px)",
             fontWeight: 700, color: COLORS.white, lineHeight: 1.1, margin: "0 0 24px",
           }}>
-            We Supercharge<br />
+            Ecommerce Expertise.<br />
             <span style={{
               background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>Your Ecommerce</span><br />
-            Sales
+            }}>AI-Enhanced.</span>
           </h1>
 
           <p style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 18, color: "rgba(255,255,255,0.7)",
             lineHeight: 1.7, margin: "0 0 40px", maxWidth: 480,
           }}>
-            A KPI-driven partner who understands how to consistently boost your revenue.
+            We are ecommerce operators first. We know your platforms, your customers, and your category — and we use the best available tools to make you win.
           </p>
 
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -417,7 +416,7 @@ function Services() {
     {
       icon: "🎯",
       title: "End-to-End Service",
-      desc: "Unlike software-only solutions, we offer a human approach with exceptional account management. AI complements, never replaces.",
+      desc: "Our team lives in the platforms so you don't have to. AI handles the repetitive work — our people handle the judgment calls that actually move the needle.",
     },
     {
       icon: "💬",
@@ -447,12 +446,12 @@ function Services() {
           <h2 style={{
             fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)",
             fontWeight: 700, color: COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2,
-          }}>Increasing sales by connecting<br />brands to marketplaces</h2>
+          }}>Ecommerce operators,<br />not just account managers</h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.gray500,
             maxWidth: 560, margin: "0 auto", lineHeight: 1.6,
           }}>
-            We make sure your shop looks great, convert online leads, and handle setup & maintenance. The result? Increased sales.
+            We make sure your shop looks great, converts online leads, and runs like clockwork. The result? Sustained, compounding revenue growth.
           </p>
         </div>
 
@@ -506,19 +505,19 @@ function WhyUs() {
   const reasons = [
     {
       title: "We pull out all the stops",
-      desc: "A team of 30+ people, all well-established in the market. We've helped hundreds of clients launch stores and know exactly how to shortcut your path to high conversions.",
+      desc: "30+ ecommerce specialists who've seen every algorithm shift, every campaign type, every product category. That experience is what AI can't replicate — and what we bring to every brand.",
     },
     {
       title: "Tricky storefront optimization",
-      desc: "We start by auditing existing storefronts and providing in-depth feedback. Then we handle everything — operations, account management, and realistic sales targets.",
+      desc: "We audit, we strategise, we execute. Our team knows the difference between a listing that ranks and one that converts — and we don't rely on guesswork or generic templates.",
     },
     {
       title: "Every bell and whistle included",
-      desc: "Monthly marketing, seasonal refreshes, quality assurance, chat handling, and a dedicated account manager — all included.",
+      desc: "Every function your store needs — managed by people who know what good looks like. We set the standard, and we use smart tools to maintain it consistently.",
     },
     {
       title: "You're our one and only",
-      desc: "We don't rely on chatbots or impersonal hotlines. When you work with Atsell, you get a passionate team that knows you by name.",
+      desc: "When things go sideways — a listing pulled, a flash sale gone wrong, a BSR drop overnight — you call us. A real person picks up. That's the difference.",
     },
   ];
 
@@ -541,12 +540,12 @@ function WhyUs() {
           <h2 style={{
             fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)",
             fontWeight: 700, color: COLORS.white, margin: "12px 0 16px", lineHeight: 1.2,
-          }}>We go above and beyond what<br />the big guys do</h2>
+          }}>Lots of agencies say they use AI.<br />We say: ecommerce judgment wins.</h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: "rgba(255,255,255,0.6)",
             maxWidth: 520, margin: "0 auto", lineHeight: 1.6,
           }}>
-            A software-first approach doesn't cut it. You need a dedicated team that's always there when you need them.
+            AI is how we stay efficient. Real ecommerce expertise is why our brands consistently outperform.
           </p>
         </div>
 
@@ -1543,7 +1542,7 @@ function Footer() {
               fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.4)",
               maxWidth: 300, lineHeight: 1.6,
             }}>
-              Supercharging online sales for brands across Southeast Asia since 2019.
+              Ecommerce people, since 2019. Serving brands across Southeast Asia.
             </p>
           </div>
 
