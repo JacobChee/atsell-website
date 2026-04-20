@@ -889,320 +889,535 @@ function Pricing() {
   );
 }
 
-function Calculator() {
-  const [tab, setTab] = useState("shopee_mall");
-  const [price, setPrice] = useState(1298);
-  const [voucher, setVoucher] = useState(0);
-  const [shipping, setShipping] = useState(0);
-  const [appType, setAppType] = useState("sda");
-  const [isCampaign, setIsCampaign] = useState(false);
+import { useState, useEffect, useRef } from "react";
 
-  const RATES = {
-    shopee_mall: {
-      txn: 0.0327,
-      sda_comm: 0.109,
-      mda_comm: 0.0872,
-      service: 0.0327,
-      comm_cap: 80,
-      service_cap: 60,
-    },
-    shopee_nonmall: {
-      txn: 0.0218,
-      sda_comm: 0.0545,
-      service: 0.0327,
-      comm_cap: 30,
-      service_cap: 30,
-    },
-    lazada: {
-      txn_rate: 0.03,
-      sda_comm: 0.09,
-      mda_comm: 0.07,
-      spa_rate: 0.04,
-      gst: 1.09,
-      comm_cap: 81.75,   // $75 excl GST × 1.09
-      spa_cap: 65.40,    // $60 excl GST × 1.09
-      voucher_rate: 0.06,
-      voucher_cap: 40,
-    },
+const COLORS = {
+  navy: "#1a2744",
+  navyDark: "#111b33",
+  white: "#ffffff",
+  offWhite: "#f7f6f3",
+  gold: "#e8a838",
+  gray200: "#e8e8e8",
+  gray500: "#6b7280",
+};
+
+// ─── RATE TABLES ─────────────────────────────────────────────────────────────
+
+const MALL_COMMISSION = {
+  coins: {
+    mobile_phones_tablets:              { rate: 0.0872, cap: 80 },
+    lenses_cameras_drones:              { rate: 0.0981, cap: 80 },
+    large_household_appliances:         { rate: 0.0872, cap: 80 },
+    desktop_computers_laptops:          { rate: 0.0872, cap: 80 },
+    desktop_laptop_components_printers: { rate: 0.1090, cap: 80 },
+    console_machines_video_games:       { rate: 0.1090, cap: 80 },
+    all_other_electronics:              { rate: 0.1090, cap: 80 },
+    alcoholic_beverages:                { rate: 0.1090, cap: null },
+    diapering_milk_baby_food:           { rate: 0.1090, cap: null },
+    all_pet_subcategories:              { rate: 0.1090, cap: null },
+    all_other_non_electronics:          { rate: 0.1090, cap: null },
+  },
+  non_coins: {
+    mobile_phones_tablets:              { rate: 0.1090, cap: 80 },
+    lenses_cameras_drones:              { rate: 0.1199, cap: 80 },
+    large_household_appliances:         { rate: 0.1308, cap: 80 },
+    desktop_computers_laptops:          { rate: 0.1090, cap: 80 },
+    desktop_laptop_components_printers: { rate: 0.1308, cap: 80 },
+    console_machines_video_games:       { rate: 0.1308, cap: 80 },
+    all_other_electronics:              { rate: 0.1526, cap: 80 },
+    alcoholic_beverages:                { rate: 0.1308, cap: null },
+    diapering_milk_baby_food:           { rate: 0.1308, cap: null },
+    all_pet_subcategories:              { rate: 0.1308, cap: null },
+    all_other_non_electronics:          { rate: 0.1526, cap: null },
+  },
+};
+
+const NONMALL_COMMISSION = {
+  coins: {
+    mobile_phones_tablets:              { rate: 0.0763, cap: 30 },
+    lenses_cameras_drones:              { rate: 0.0763, cap: 30 },
+    large_household_appliances:         { rate: 0.0763, cap: 30 },
+    desktop_computers_laptops:          { rate: 0.0763, cap: 30 },
+    desktop_laptop_components_printers: { rate: 0.0763, cap: 30 },
+    console_machines_video_games:       { rate: 0.0763, cap: 30 },
+    all_other_electronics:              { rate: 0.0763, cap: 30 },
+    alcoholic_beverages:                { rate: 0.0763, cap: null },
+    diapering_milk_baby_food:           { rate: 0.0763, cap: null },
+    all_pet_subcategories:              { rate: 0.0763, cap: null },
+    all_other_non_electronics:          { rate: 0.0763, cap: null },
+  },
+  non_coins: {
+    mobile_phones_tablets:              { rate: 0.0981, cap: 30 },
+    lenses_cameras_drones:              { rate: 0.0981, cap: 30 },
+    large_household_appliances:         { rate: 0.0981, cap: 30 },
+    desktop_computers_laptops:          { rate: 0.0981, cap: 30 },
+    desktop_laptop_components_printers: { rate: 0.0981, cap: 30 },
+    console_machines_video_games:       { rate: 0.0981, cap: 30 },
+    all_other_electronics:              { rate: 0.1199, cap: 30 },
+    alcoholic_beverages:                { rate: 0.0981, cap: null },
+    diapering_milk_baby_food:           { rate: 0.0981, cap: null },
+    all_pet_subcategories:              { rate: 0.0981, cap: null },
+    all_other_non_electronics:          { rate: 0.1199, cap: null },
+  },
+};
+
+const SUBCATEGORIES = [
+  { key: "mobile_phones_tablets",              label: "Mobile Phones, Tablets",                         group: "Electronics" },
+  { key: "lenses_cameras_drones",              label: "Lenses, Cameras, Drones",                        group: "Electronics" },
+  { key: "large_household_appliances",         label: "Large Household Appliances",                     group: "Electronics" },
+  { key: "desktop_computers_laptops",          label: "Desktop Computers, Laptops",                     group: "Electronics" },
+  { key: "desktop_laptop_components_printers", label: "Desktop/Laptop Components, Printers & Scanners", group: "Electronics" },
+  { key: "console_machines_video_games",       label: "Console Machines, Video Games",                  group: "Electronics" },
+  { key: "all_other_electronics",              label: "All Other Electronics Sub-categories",           group: "Electronics" },
+  { key: "alcoholic_beverages",                label: "Alcoholic Beverages",                            group: "Non-Electronics" },
+  { key: "diapering_milk_baby_food",           label: "Diapering, Potty, Milk Formula & Baby Food",    group: "Non-Electronics" },
+  { key: "all_pet_subcategories",              label: "All Pet Sub-categories",                         group: "Non-Electronics" },
+  { key: "all_other_non_electronics",          label: "All Other Non-Electronics Sub-categories",      group: "Non-Electronics" },
+];
+
+const OTHER_RATES = {
+  shopee_mall:    { txn: 0.0327, service: 0.0327, service_cap: 60 },
+  shopee_nonmall: { txn: 0.0218, service: 0.0327, service_cap: 30 },
+};
+
+const LAZADA_RATES = {
+  txn_rate: 0.03, sda_comm: 0.09, mda_comm: 0.07,
+  spa_rate: 0.04, gst: 1.09, comm_cap: 81.75,
+  spa_cap: 65.40, voucher_rate: 0.06, voucher_cap: 40,
+};
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+const fmt      = (n) => "$" + Math.abs(n).toFixed(2);
+const pct      = (n) => (n * 100).toFixed(2) + "%";
+const calcComm = (rate, cap, base) => cap !== null ? Math.min(rate * base, cap) : rate * base;
+
+// ─── WATERFALL CHART (pure Canvas) ───────────────────────────────────────────
+
+function WaterfallChart({ price, fees, payout }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W   = canvas.offsetWidth;
+    const H   = canvas.offsetHeight;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+
+    const bars = [
+      { label: "Selling\nprice", val: price, type: "start" },
+      ...fees.map(f => ({ label: f.label, val: f.val, type: "fee" })),
+      { label: "Payout", val: payout, type: "payout" },
+    ];
+
+    const PAD    = { top: 28, right: 16, bottom: 52, left: 60 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top  - PAD.bottom;
+    const barW   = Math.min(54, (chartW / bars.length) * 0.6);
+    const gap    = (chartW - barW * bars.length) / (bars.length - 1);
+    const maxVal = price * 1.08;
+    const toY    = (v) => PAD.top + chartH - (v / maxVal) * chartH;
+
+    // grid lines + y-axis labels
+    const steps = 4;
+    for (let i = 0; i <= steps; i++) {
+      const v = (price / steps) * i;
+      const y = toY(v);
+      ctx.strokeStyle = "rgba(255,255,255,0.07)";
+      ctx.lineWidth   = 1;
+      ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + chartW, y); ctx.stroke();
+      ctx.fillStyle  = "rgba(255,255,255,0.3)";
+      ctx.font       = "11px 'DM Sans', sans-serif";
+      ctx.textAlign  = "right";
+      ctx.fillText("$" + Math.round(v), PAD.left - 6, y + 4);
+    }
+
+    let cumulative = 0;
+
+    bars.forEach((bar, i) => {
+      const x = PAD.left + i * (barW + gap);
+      let barTop, barBottom;
+
+      if (bar.type === "start") {
+        barTop = toY(price); barBottom = PAD.top + chartH;
+        cumulative = price;
+      } else if (bar.type === "fee") {
+        barTop = toY(cumulative); barBottom = toY(cumulative - bar.val);
+        cumulative -= bar.val;
+      } else {
+        barTop = toY(payout); barBottom = PAD.top + chartH;
+      }
+
+      const barH = Math.max(barBottom - barTop, 2);
+      const palettes = {
+        start:  { fill: "rgba(136,135,128,0.5)", stroke: "#888780" },
+        fee:    { fill: "rgba(226,75,74,0.7)",   stroke: "#E24B4A" },
+        payout: { fill: "rgba(29,158,117,0.7)",  stroke: "#1D9E75" },
+      };
+      const { fill, stroke } = palettes[bar.type];
+      const r = 4;
+
+      ctx.fillStyle   = fill;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth   = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x + r, barTop);
+      ctx.lineTo(x + barW - r, barTop);
+      ctx.arcTo(x + barW, barTop, x + barW, barTop + r, r);
+      ctx.lineTo(x + barW, barBottom);
+      ctx.lineTo(x, barBottom);
+      ctx.lineTo(x, barTop + r);
+      ctx.arcTo(x, barTop, x + r, barTop, r);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // value label above bar
+      ctx.fillStyle = bar.type === "fee" ? "#f09595" : (bar.type === "payout" ? "#5DCAA5" : "rgba(255,255,255,0.7)");
+      ctx.font      = "bold 11px 'DM Sans', sans-serif";
+      ctx.textAlign = "center";
+      const dispVal = bar.type === "fee"
+        ? "-" + fmt(bar.val)
+        : fmt(bar.type === "start" ? price : payout);
+      ctx.fillText(dispVal, x + barW / 2, barTop - 7);
+
+      // x-axis label
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.font      = "11px 'DM Sans', sans-serif";
+      ctx.textAlign = "center";
+      bar.label.split("\n").forEach((line, li) => {
+        ctx.fillText(line, x + barW / 2, PAD.top + chartH + 16 + li * 14);
+      });
+
+      // dashed connector to next bar
+      if (bar.type === "fee" && i < bars.length - 1) {
+        const nextX = PAD.left + (i + 1) * (barW + gap);
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth   = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x + barW, toY(cumulative));
+        ctx.lineTo(nextX, toY(cumulative));
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    });
+  }, [price, fees, payout]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ width: "100%", height: 230, display: "block" }}
+      aria-label="Waterfall chart showing fee deductions from selling price to payout"
+    />
+  );
+}
+
+// ─── BREAKDOWN TABLE ──────────────────────────────────────────────────────────
+
+function BreakdownTable({ price, fees, payout, feeRate, keepRate }) {
+  const row = {
+    display: "flex", justifyContent: "space-between", alignItems: "center",
+    padding: "9px 0", borderBottom: "1px solid rgba(255,255,255,0.06)",
+    fontFamily: "'DM Sans', sans-serif", fontSize: 13,
   };
+  const col = (flex, align = "right") => ({ flex: `0 0 ${flex}`, textAlign: align });
 
-  const fmt = (n) => "$" + Math.abs(n).toFixed(2);
-  const pct = (n) => (n * 100).toFixed(1) + "%";
+  let running = price;
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ ...row, fontSize: 11, color: "rgba(255,255,255,0.28)", letterSpacing: "0.8px", textTransform: "uppercase" }}>
+        <span style={col("38%", "left")}>Item</span>
+        <span style={col("22%")}>Rate / detail</span>
+        <span style={col("18%")}>Amount</span>
+        <span style={col("22%")}>Running total</span>
+      </div>
+
+      {/* Selling price */}
+      <div style={{ ...row, color: "rgba(255,255,255,0.75)" }}>
+        <span style={col("38%", "left")}>Selling price</span>
+        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.28)" }}>—</span>
+        <span style={{ ...col("18%"), fontWeight: 600 }}>{fmt(price)}</span>
+        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.4)" }}>{fmt(price)}</span>
+      </div>
+
+      {/* Fee rows */}
+      {fees.map((f, i) => {
+        running -= f.val;
+        return (
+          <div key={i} style={{ ...row, color: "rgba(255,255,255,0.55)" }}>
+            <span style={col("38%", "left")}>{f.label}</span>
+            <span style={{ ...col("22%"), color: "rgba(255,255,255,0.28)", fontSize: 11 }}>{f.detail || "—"}</span>
+            <span style={{ ...col("18%"), fontWeight: 600, color: "#f09595" }}>-{fmt(f.val)}</span>
+            <span style={{ ...col("22%"), color: "rgba(255,255,255,0.38)" }}>{fmt(running)}</span>
+          </div>
+        );
+      })}
+
+      {/* Payout row */}
+      <div style={{
+        ...row, borderBottom: "none", marginTop: 8,
+        background: "rgba(29,158,117,0.1)", borderRadius: 8,
+        padding: "11px 12px", color: COLORS.white,
+      }}>
+        <span style={{ ...col("38%", "left"), fontWeight: 600 }}>Estimated payout</span>
+        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
+          {keepRate.toFixed(1)}% keep rate
+        </span>
+        <span style={{ ...col("18%"), fontWeight: 700, color: "#5DCAA5", fontSize: 15 }}>{fmt(payout)}</span>
+        <span style={{ ...col("22%"), color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
+          {feeRate.toFixed(1)}% in fees
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── LEGEND ───────────────────────────────────────────────────────────────────
+
+function Legend() {
+  const item = (color, label) => (
+    <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "rgba(255,255,255,0.38)", fontFamily: "'DM Sans', sans-serif" }}>
+      <span style={{ width: 10, height: 10, borderRadius: 2, background: color, display: "inline-block", flexShrink: 0 }} />
+      {label}
+    </span>
+  );
+  return (
+    <div style={{ display: "flex", gap: 16, marginBottom: 10 }}>
+      {item("#888780", "Start / subtotal")}
+      {item("#E24B4A", "Fee deduction")}
+      {item("#1D9E75", "Payout")}
+    </div>
+  );
+}
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+
+export default function Calculator() {
+  const [tab, setTab]               = useState("shopee_mall");
+  const [price, setPrice]           = useState(1298);
+  const [voucher, setVoucher]       = useState(0);
+  const [shipping, setShipping]     = useState(0);
+  const [programme, setProgramme]   = useState("non_coins");
+  const [subcat, setSubcat]         = useState("mobile_phones_tablets");
+  const [appType, setAppType]       = useState("sda");
+  const [isCampaign, setIsCampaign] = useState(false);
 
   const switchTab = (t) => {
     setTab(t);
     setPrice(t === "lazada" ? 258 : t === "shopee_nonmall" ? 998 : 1298);
-    setVoucher(0);
-    setShipping(0);
-    setAppType("sda");
-    setIsCampaign(false);
+    setVoucher(0); setShipping(0);
+    setProgramme("non_coins");
+    setSubcat("mobile_phones_tablets");
+    setAppType("sda"); setIsCampaign(false);
   };
 
+  // ── Fee calculations ──
   let fees = [], totalFees = 0, payout = 0;
-  const v = voucher;
 
   if (tab === "shopee_mall") {
-    const r = RATES.shopee_mall;
-    const cr = appType === "mda" ? r.mda_comm : r.sda_comm;
-    const net = price - v;
-    const txn = net * r.txn;
-    const comm = Math.min(net * cr, r.comm_cap);
-    const svc = Math.min(net * r.service, r.service_cap);
-    totalFees = v + txn + comm + svc;
-    payout = price - totalFees;
-    if (v > 0) fees.push({ label: "Voucher", detail: "", val: v });
-    fees.push({ label: "Transaction fee", detail: pct(r.txn), val: txn });
-    fees.push({ label: "Commission", detail: `${pct(cr)}, cap $${r.comm_cap}`, val: comm });
-    fees.push({ label: "Service fee", detail: `${pct(r.service)}, cap $${r.service_cap}`, val: svc });
+    const r = OTHER_RATES.shopee_mall;
+    const { rate: cr, cap: commCap } = MALL_COMMISSION[programme][subcat] ?? MALL_COMMISSION[programme]["all_other_non_electronics"];
+    const net  = price - voucher;
+    const txn  = net * r.txn;
+    const comm = calcComm(cr, commCap, net);
+    const svc  = Math.min(net * r.service, r.service_cap);
+    totalFees  = voucher + txn + comm + svc;
+    payout     = price - totalFees;
+    if (voucher > 0) fees.push({ label: "Voucher",         detail: "seller-funded",                           val: voucher });
+    fees.push({ label: "Transaction fee", detail: pct(r.txn),                                                 val: txn });
+    fees.push({ label: "Commission",      detail: `${pct(cr)}${commCap ? `, cap $${commCap}` : ", no cap"}`,  val: comm });
+    fees.push({ label: "Service fee",     detail: `${pct(r.service)}, cap $${r.service_cap}`,                 val: svc });
 
   } else if (tab === "shopee_nonmall") {
-    const r = RATES.shopee_nonmall;
-    const net = price - v;
-    const txn = net * r.txn;
-    const comm = Math.min(net * r.sda_comm, r.comm_cap);
-    const svc = Math.min(net * r.service, r.service_cap);
-    totalFees = v + txn + comm + svc;
-    payout = price - totalFees;
-    if (v > 0) fees.push({ label: "Voucher", detail: "", val: v });
-    fees.push({ label: "Transaction fee", detail: pct(r.txn), val: txn });
-    fees.push({ label: "Commission", detail: `${pct(r.sda_comm)}, cap $${r.comm_cap}`, val: comm });
-    fees.push({ label: "Service fee", detail: `${pct(r.service)}, cap $${r.service_cap}`, val: svc });
+    const r = OTHER_RATES.shopee_nonmall;
+    const { rate: cr, cap: commCap } = NONMALL_COMMISSION[programme][subcat] ?? NONMALL_COMMISSION[programme]["all_other_non_electronics"];
+    const net  = price - voucher;
+    const txn  = net * r.txn;
+    const comm = calcComm(cr, commCap, net);
+    const svc  = Math.min(net * r.service, r.service_cap);
+    totalFees  = voucher + txn + comm + svc;
+    payout     = price - totalFees;
+    if (voucher > 0) fees.push({ label: "Voucher",         detail: "seller-funded",                           val: voucher });
+    fees.push({ label: "Transaction fee", detail: pct(r.txn),                                                 val: txn });
+    fees.push({ label: "Commission",      detail: `${pct(cr)}${commCap ? `, cap $${commCap}` : ", no cap"}`,  val: comm });
+    fees.push({ label: "Service fee",     detail: `${pct(r.service)}, cap $${r.service_cap}`,                 val: svc });
 
   } else {
-    // Lazada
-    // BAU and Campaign use identical rates — isCampaign is for labelling only
-    const r = RATES.lazada;
-    const cr = appType === "mda" ? r.mda_comm : r.sda_comm;
-
-    // Voucher: use user input if provided, otherwise auto-calculate at 6% capped $40
-    const autoV = v === 0 ? Math.min(price * r.voucher_rate, r.voucher_cap) : v;
-    const net = price - autoV;
-
-    // Txn fee base includes customer shipping fee per Lazada formula
-    const txn = (net + shipping) * r.txn_rate * r.gst;
-    // Comm and SPA base is price - voucher only (no shipping)
-    const comm = Math.min(cr * net * r.gst, r.comm_cap);
-    const spa = Math.min(r.spa_rate * net * r.gst, r.spa_cap);
-
-    totalFees = autoV + txn + comm + spa;
-    payout = price - totalFees;
-
-    fees.push({ label: "Voucher", detail: "seller-funded", val: autoV });
-    fees.push({ label: "Transaction fee", detail: `3% + GST${shipping > 0 ? " (incl. shipping)" : ""}`, val: txn });
-    fees.push({
-      label: "Commission",
-      detail: `${pct(cr)} + GST, cap $${r.comm_cap} — ${isCampaign ? "Campaign" : "BAU"}`,
-      val: comm,
-    });
-    fees.push({ label: "SPA fee", detail: `4% + GST, cap $${r.spa_cap}`, val: spa });
+    const r     = LAZADA_RATES;
+    const cr    = appType === "mda" ? r.mda_comm : r.sda_comm;
+    const autoV = voucher === 0 ? Math.min(price * r.voucher_rate, r.voucher_cap) : voucher;
+    const net   = price - autoV;
+    const txn   = (net + shipping) * r.txn_rate * r.gst;
+    const comm  = Math.min(cr * net * r.gst, r.comm_cap);
+    const spa   = Math.min(r.spa_rate * net * r.gst, r.spa_cap);
+    totalFees   = autoV + txn + comm + spa;
+    payout      = price - totalFees;
+    fees.push({ label: "Voucher",         detail: "seller-funded (auto)",                                                        val: autoV });
+    fees.push({ label: "Transaction fee", detail: `3% + GST${shipping > 0 ? " (incl. shipping)" : ""}`,                         val: txn });
+    fees.push({ label: "Commission",      detail: `${pct(cr)} + GST, cap $${r.comm_cap} — ${isCampaign ? "Campaign" : "BAU"}`,  val: comm });
+    fees.push({ label: "SPA fee",         detail: `4% + GST, cap $${r.spa_cap}`,                                                val: spa });
   }
 
-  const feeRate = price > 0 ? (totalFees / price) * 100 : 0;
-  const keepRate = price > 0 ? (payout / price) * 100 : 0;
+  const feeRate  = price > 0 ? (totalFees / price) * 100 : 0;
+  const keepRate = price > 0 ? (payout    / price) * 100 : 0;
 
+  // ── Styles ──
   const tabStyle = (t) => ({
-    padding: "10px 22px",
-    cursor: "pointer",
-    fontSize: 13,
-    fontWeight: 600,
-    letterSpacing: "0.3px",
-    border: "none",
-    borderRadius: "12px 12px 0 0",
+    padding: "10px 22px", cursor: "pointer", fontSize: 13, fontWeight: 600,
+    letterSpacing: "0.3px", border: "none", borderRadius: "12px 12px 0 0",
     background: tab === t ? COLORS.navy : COLORS.gray200,
     color: tab === t ? COLORS.white : COLORS.gray500,
-    fontFamily: "'DM Sans', sans-serif",
-    transition: "all 0.25s",
+    fontFamily: "'DM Sans', sans-serif", transition: "all 0.25s",
   });
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.08)",
-    border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: 8,
-    padding: "10px 14px",
-    color: COLORS.white,
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 14,
-    width: 180,
-    outline: "none",
+    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
+    borderRadius: 8, padding: "10px 14px", color: COLORS.white,
+    fontFamily: "'DM Sans', sans-serif", fontSize: 14, width: 220, outline: "none",
   };
 
   const labelStyle = {
-    fontSize: 13,
-    color: "rgba(255,255,255,0.6)",
-    minWidth: 130,
+    fontSize: 13, color: "rgba(255,255,255,0.6)",
+    minWidth: 150, fontFamily: "'DM Sans', sans-serif",
+  };
+
+  const sectionLabel = {
+    fontSize: 11, textTransform: "uppercase", letterSpacing: "1.5px",
+    color: COLORS.gold, fontWeight: 700, marginBottom: 16,
     fontFamily: "'DM Sans', sans-serif",
   };
+
+  const isShopee       = tab !== "lazada";
+  const electronics    = SUBCATEGORIES.filter(s => s.group === "Electronics");
+  const nonElectronics = SUBCATEGORIES.filter(s => s.group === "Non-Electronics");
 
   return (
     <section id="calculator" style={{ background: COLORS.offWhite, padding: "100px 24px" }}>
       <div style={{ maxWidth: 700, margin: "0 auto" }}>
+
+        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <span style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gold,
-            textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700,
-          }}>Free Tool</span>
-          <h2 style={{
-            fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)",
-            fontWeight: 700, color: COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2,
-          }}>Marketplace fee calculator</h2>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.gray500,
-            maxWidth: 480, margin: "0 auto", lineHeight: 1.6,
-          }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gold, textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700 }}>Free Tool</span>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, color: COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2 }}>
+            Marketplace fee calculator
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.gray500, maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
             See exactly how much you keep after platform fees on Shopee and Lazada.
           </p>
         </div>
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 6 }}>
-          <button style={tabStyle("shopee_mall")} onClick={() => switchTab("shopee_mall")}>Shopee Mall</button>
+          <button style={tabStyle("shopee_mall")}    onClick={() => switchTab("shopee_mall")}>Shopee Mall</button>
           <button style={tabStyle("shopee_nonmall")} onClick={() => switchTab("shopee_nonmall")}>Shopee Non-Mall</button>
-          <button style={tabStyle("lazada")} onClick={() => switchTab("lazada")}>Lazada</button>
+          <button style={tabStyle("lazada")}         onClick={() => switchTab("lazada")}>Lazada</button>
         </div>
 
-        <div style={{
-          background: `linear-gradient(135deg, ${COLORS.navyDark}, ${COLORS.navy})`,
-          borderRadius: "0 16px 16px 16px", padding: 32, color: COLORS.white,
-        }}>
-          {/* Inputs */}
+        <div style={{ background: `linear-gradient(135deg, ${COLORS.navyDark}, ${COLORS.navy})`, borderRadius: "0 16px 16px 16px", padding: 32, color: COLORS.white }}>
+
+          {/* ── INPUTS ── */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{
-              fontSize: 11, textTransform: "uppercase", letterSpacing: "1.5px",
-              color: COLORS.gold, fontWeight: 700, marginBottom: 16,
-              fontFamily: "'DM Sans', sans-serif",
-            }}>Input</div>
+            <div style={sectionLabel}>Input</div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
               <label style={labelStyle}>Selling price ($)</label>
-              <input
-                type="number" value={price} step="1"
-                onChange={(e) => setPrice(+e.target.value)}
-                style={inputStyle}
-              />
+              <input type="number" value={price} step="1" onChange={e => setPrice(+e.target.value)} style={inputStyle} />
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
               <label style={labelStyle}>
                 Voucher ($){tab === "lazada" && <span style={{ opacity: 0.5, fontSize: 11 }}> (0 = auto)</span>}
               </label>
-              <input
-                type="number" value={voucher} step="1"
-                onChange={(e) => setVoucher(+e.target.value)}
-                style={inputStyle}
-              />
+              <input type="number" value={voucher} step="1" onChange={e => setVoucher(+e.target.value)} style={inputStyle} />
             </div>
 
-            {/* Shipping — Lazada only */}
-            {tab === "lazada" && (
+            {isShopee && (
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <label style={labelStyle}>Customer shipping ($)</label>
-                <input
-                  type="number" value={shipping} step="1"
-                  onChange={(e) => setShipping(+e.target.value)}
-                  style={inputStyle}
-                />
+                <label style={labelStyle}>Programme</label>
+                <select value={programme} onChange={e => setProgramme(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
+                  <option value="coins"     style={{ background: COLORS.navy }}>Coins Cashback Programme</option>
+                  <option value="non_coins" style={{ background: COLORS.navy }}>Non-Coins Cashback Programme</option>
+                </select>
               </div>
             )}
 
-            {/* Appliance type — Shopee Mall and Lazada */}
-            {tab !== "shopee_nonmall" && (
+            {isShopee && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={labelStyle}>Sub-category</label>
+                <select value={subcat} onChange={e => setSubcat(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
+                  <optgroup label="── Electronics ──" style={{ background: COLORS.navy }}>
+                    {electronics.map(s => <option key={s.key} value={s.key} style={{ background: COLORS.navy }}>{s.label}</option>)}
+                  </optgroup>
+                  <optgroup label="── Non-Electronics ──" style={{ background: COLORS.navy }}>
+                    {nonElectronics.map(s => <option key={s.key} value={s.key} style={{ background: COLORS.navy }}>{s.label}</option>)}
+                  </optgroup>
+                </select>
+              </div>
+            )}
+
+            {tab === "lazada" && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <label style={labelStyle}>Customer shipping ($)</label>
+                <input type="number" value={shipping} step="1" onChange={e => setShipping(+e.target.value)} style={inputStyle} />
+              </div>
+            )}
+
+            {tab === "lazada" && (
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <label style={labelStyle}>Appliance type</label>
-                <select
-                  value={appType}
-                  onChange={(e) => setAppType(e.target.value)}
-                  style={{ ...inputStyle, appearance: "auto" }}
-                >
+                <select value={appType} onChange={e => setAppType(e.target.value)} style={{ ...inputStyle, appearance: "auto" }}>
                   <option value="sda" style={{ background: COLORS.navy }}>Small (SDA)</option>
                   <option value="mda" style={{ background: COLORS.navy }}>Large (MDA)</option>
                 </select>
               </div>
             )}
 
-            {/* Campaign toggle — Lazada only */}
             {tab === "lazada" && (
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <label style={labelStyle}>Campaign day?</label>
-                <select
-                  value={isCampaign ? "yes" : "no"}
-                  onChange={(e) => setIsCampaign(e.target.value === "yes")}
-                  style={{ ...inputStyle, appearance: "auto" }}
-                >
-                  <option value="no" style={{ background: COLORS.navy }}>No (BAU)</option>
+                <select value={isCampaign ? "yes" : "no"} onChange={e => setIsCampaign(e.target.value === "yes")} style={{ ...inputStyle, appearance: "auto" }}>
+                  <option value="no"  style={{ background: COLORS.navy }}>No (BAU)</option>
                   <option value="yes" style={{ background: COLORS.navy }}>Yes</option>
                 </select>
               </div>
             )}
-          </div>
 
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "20px 0" }} />
-
-          {/* Fee breakdown */}
-          <div>
-            <div style={{
-              fontSize: 11, textTransform: "uppercase", letterSpacing: "1.5px",
-              color: COLORS.gold, fontWeight: 700, marginBottom: 16,
-              fontFamily: "'DM Sans', sans-serif",
-            }}>Fee breakdown</div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", fontSize: 14, fontFamily: "'DM Sans', sans-serif" }}>
-              <span style={{ color: "rgba(255,255,255,0.55)" }}>Selling price</span>
-              <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{fmt(price)}</span>
-            </div>
-
-            {fees.map((f, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", fontSize: 14, fontFamily: "'DM Sans', sans-serif" }}>
-                <span style={{ color: "rgba(255,255,255,0.55)" }}>
-                  {f.label}{" "}
-                  {f.detail && <span style={{ opacity: 0.5 }}>({f.detail})</span>}
-                </span>
-                <span style={{ fontWeight: 600, color: "#f09595" }}>-{fmt(f.val)}</span>
+            {isShopee && (
+              <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(232,168,56,0.08)", border: "1px solid rgba(232,168,56,0.15)", borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
+                ✦ Rates reflect Shopee commission schedule effective from 1 Jan 2026 (incl. GST)
               </div>
-            ))}
+            )}
           </div>
 
-          {/* Payout */}
-          <div style={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            padding: "12px 16px",
-            background: "rgba(232,168,56,0.1)",
-            border: "1px solid rgba(232,168,56,0.2)",
-            borderRadius: 12, marginTop: 16,
-          }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.8)", fontFamily: "'DM Sans', sans-serif" }}>
-              Estimated payout
-            </span>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: COLORS.gold }}>
-              {fmt(payout)}
-            </span>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "4px 0 24px" }} />
+
+          {/* ── PAYOUT HERO ── */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "rgba(232,168,56,0.1)", border: "1px solid rgba(232,168,56,0.2)", borderRadius: 12, marginBottom: 28 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.8)", fontFamily: "'DM Sans', sans-serif" }}>Estimated payout</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: COLORS.gold }}>{fmt(payout)}</span>
           </div>
 
-          {/* Metrics */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginTop: 20 }}>
-            {[
-              { label: "Total fees", val: fmt(totalFees), gold: false },
-              { label: "Fee rate", val: feeRate.toFixed(1) + "%", gold: false },
-              { label: "You keep", val: fmt(payout), gold: true },
-              { label: "Keep rate", val: keepRate.toFixed(1) + "%", gold: true },
-            ].map((m, i) => (
-              <div key={i} style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: 12, padding: 14, textAlign: "center",
-              }}>
-                <div style={{
-                  fontSize: 11, color: "rgba(255,255,255,0.45)",
-                  textTransform: "uppercase", letterSpacing: "0.8px",
-                  marginBottom: 4, fontFamily: "'DM Sans', sans-serif",
-                }}>{m.label}</div>
-                <div style={{
-                  fontSize: 18, fontWeight: 700,
-                  color: m.gold ? COLORS.gold : COLORS.white,
-                  fontFamily: "'DM Sans', sans-serif",
-                }}>{m.val}</div>
-              </div>
-            ))}
-          </div>
+          {/* ── WATERFALL CHART ── */}
+          <div style={sectionLabel}>Fee waterfall</div>
+          <Legend />
+          <WaterfallChart price={price} fees={fees} payout={payout} />
+
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "24px 0 20px" }} />
+
+          {/* ── BREAKDOWN TABLE ── */}
+          <div style={sectionLabel}>Fee breakdown</div>
+          <BreakdownTable
+            price={price} fees={fees} payout={payout}
+            feeRate={feeRate} keepRate={keepRate}
+          />
+
         </div>
       </div>
     </section>
