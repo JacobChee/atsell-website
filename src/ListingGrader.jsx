@@ -814,6 +814,19 @@ export default function ListingGrader() {
             {cat.sgMatters && " SG trust signals matter in this category."}
           </div>
 
+          {/* Title */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
+              <label style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: C.gray500, textTransform: "uppercase", letterSpacing: "0.6px" }}>Your listing title</label>
+              <span style={{ fontFamily: FONT, fontSize: 12, color: charColor, fontWeight: 500 }}>{len} / {charLimit} chars</span>
+            </div>
+            <textarea className="gi" value={title} onChange={e => setTitle(e.target.value)}
+              placeholder={category === "batteries" ? "e.g. GP Ultra Alkaline AA Battery 8 Pack — High Performance, Long Lasting SG Ready Stock" : category === "appliances" ? "e.g. SMEG Retro Electric Kettle KLF03 1.7L — 50s Style, 8 Colors, 2 Year Warranty SG" : "Paste your listing title here"}
+              rows={3}
+              style={{ width: "100%", fontFamily: FONT, fontSize: 14, lineHeight: 1.6, padding: "12px 14px", border: `1px solid ${C.gray200}`, borderRadius: 12, background: C.offWhite, color: C.gray900, resize: "vertical", transition: "border 0.2s, box-shadow 0.2s" }}
+            />
+          </div>
+
           {/* ── Atsell specialist: product detail fields shown before grading ── */}
           {(() => {
             const fields = {
@@ -891,19 +904,6 @@ export default function ListingGrader() {
               </div>
             );
           })()}
-
-          {/* Title */}
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
-              <label style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: C.gray500, textTransform: "uppercase", letterSpacing: "0.6px" }}>Your listing title</label>
-              <span style={{ fontFamily: FONT, fontSize: 12, color: charColor, fontWeight: 500 }}>{len} / {charLimit} chars</span>
-            </div>
-            <textarea className="gi" value={title} onChange={e => setTitle(e.target.value)}
-              placeholder={category === "batteries" ? "e.g. GP Ultra Alkaline AA Battery 8 Pack — High Performance, Long Lasting SG Ready Stock" : category === "appliances" ? "e.g. SMEG Retro Electric Kettle KLF03 1.7L — 50s Style, 8 Colors, 2 Year Warranty SG" : "Paste your listing title here"}
-              rows={3}
-              style={{ width: "100%", fontFamily: FONT, fontSize: 14, lineHeight: 1.6, padding: "12px 14px", border: `1px solid ${C.gray200}`, borderRadius: 12, background: C.offWhite, color: C.gray900, resize: "vertical", transition: "border 0.2s, box-shadow 0.2s" }}
-            />
-          </div>
 
           {/* Product notes */}
           <div style={{ marginBottom: 20, animation: notesHighlight ? "shake 0.5s ease" : "none" }}>
@@ -1000,14 +1000,28 @@ export default function ListingGrader() {
                     Claude rewrites using {cat.label.replace(/^[^\s]+\s/, "")} SEO rules{notes ? " + your product notes" : ""}
                     {cat.brandTypeRelevant && brandType !== "none" ? ` (${brandType} brand strategy)` : ""}
                   </p>
-                  {!notes.trim() && !Object.values(signalAnswers).some(v => v.trim()) && (
-                    <p style={{ fontFamily: FONT, fontSize: 12, color: C.amber, margin: "6px 0 0", display: "flex", alignItems: "center", gap: 5 }}>
-                      <span>💡</span>
-                      {["batteries","appliances"].includes(category)
-                        ? "Fill in the product details above the title for a much better rewrite"
-                        : "Add product details for a much better rewrite"}
-                    </p>
-                  )}
+                  {(() => {
+                    const isAtsell = ["batteries", "appliances"].includes(category);
+                    const hasAnyInput = notes.trim() || Object.values(signalAnswers).some(v => v.trim());
+                    if (hasAnyInput) return null;
+                    // Show specific missing fields for Atsell categories
+                    const fieldLabels = {
+                      batteries: ["💡 Capacity", "⏳ Shelf life", "🎯 Use case"],
+                      appliances_lifestyle: ["🎨 Colour", "🔢 Model number", "🛡 Warranty"],
+                      appliances_functional: ["🔢 Model number", "🛡 Warranty", "🎨 Colour"],
+                    };
+                    const key = category === "batteries" ? "batteries"
+                      : category === "appliances" && brandType === "lifestyle" ? "appliances_lifestyle"
+                      : category === "appliances" && brandType === "functional" ? "appliances_functional"
+                      : null;
+                    return (
+                      <p style={{ fontFamily: FONT, fontSize: 12, color: C.amber, margin: "6px 0 0" }}>
+                        💡 {key
+                          ? `Fill in ${fieldLabels[key].join(", ")} above to get a stronger rewrite`
+                          : "Add product details above for a much better rewrite"}
+                      </p>
+                    );
+                  })()}
                 </div>
                 <button className="ab" onClick={getAIRewrite} disabled={aiLoading}
                   style={{ padding: "11px 22px", borderRadius: 10, border: "none", fontFamily: FONT, fontSize: 14, fontWeight: 600, background: C.navy, color: C.white, cursor: aiLoading ? "default" : "pointer", opacity: aiLoading ? 0.7 : 1, transition: "all 0.2s", whiteSpace: "nowrap", flexShrink: 0 }}>
