@@ -462,6 +462,29 @@ function scoreTitle(title, platform, mall, category, brandType) {
     );
   }
 
+  // ── Missing niceToHave signals (for Atsell specialist categories) ────────────
+  // These are things that would improve the title but aren't hard-required.
+  // We surface them as prompts so the seller knows what to add.
+  const ATSELL_CATS = ["batteries", "appliances"];
+  const missingSignals = [];
+  if (ATSELL_CATS.includes(category)) {
+    const niceChecks = {
+      batteries: [
+        { key: "capacity",  re: /\b(\d+\s?(mah|wh|v\b|ah))\b/i,        question: "What's the capacity? (e.g. 2500mAh, 3.6V)",        label: "💡 Capacity" },
+        { key: "shelfLife", re: /\b(\d+.year|long.shelf|shelf.life|expiry)\b/i, question: "What's the shelf life? (e.g. 10 year shelf life)", label: "⏳ Shelf life" },
+        { key: "useCase",   re: /\b(remote|controller|toy|camera|torch|flashlight|smoke|alarm|high.drain|everyday|industrial|medical|emergency)\b/i, question: "What device is it for? (e.g. for remotes, for cameras, high-drain devices)", label: "🎯 Use case" },
+      ],
+      appliances: [
+        { key: "model",    re: /\b([A-Z]{2,}\d{2,}|\d{2,}[A-Z]{2,}|[A-Z]+\d+[A-Z]*)\b/, question: "What's the model number? (e.g. KLF03, HD9252)", label: "🔢 Model number" },
+        { key: "warranty", re: /\b(\d+.year.warranty|\d+.yr.warranty|warranty.included|comes.with.warranty|manufacturer.warranty|local.warranty)\b/i, question: "Is there a warranty? (e.g. 2 year local warranty)", label: "🛡 Warranty" },
+        { key: "color",    re: /\b(black|white|grey|gray|red|cream|pastel|mint|pink|blue|silver|stainless|retro|vintage|50s|matte|glossy)\b/i, question: "What colour is it? (e.g. Cream, Matte Black, Pastel Pink)", label: "🎨 Colour" },
+      ],
+    };
+    (niceChecks[category] || []).forEach(({ re, question, label }) => {
+      if (!re.test(title)) missingSignals.push({ question, label });
+    });
+  }
+
   // ── Final score and grade ─────────────────────────────────────────────────
   const rawTotal = Math.min(100, S + P + I + Ch + E);
 
@@ -488,6 +511,7 @@ function scoreTitle(title, platform, mall, category, brandType) {
     maxC,
     mallUnderutilized,
     cat,
+    missingSignals,
   };
 }
 
@@ -645,7 +669,9 @@ export default function ListingGrader() {
   const [aiError, setAiError] = useState("");
   const [animated, setAnimated] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [notesHighlight, setNotesHighlight] = useState(false);
   const resultRef = useRef(null);
+  const notesRef = useRef(null);
 
   const cat = CATS[category] || CATS.general;
   const charLimit = platform === "lazada" ? 255 : 150;
@@ -698,6 +724,7 @@ export default function ListingGrader() {
         @media(max-width:640px){.rg{grid-template-columns:1fr!important;}.sg{flex-direction:column!important;}}
         @keyframes spin{to{transform:rotate(360deg);}}
         @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+        @keyframes shake{0%,100%{transform:translateX(0);}15%{transform:translateX(-6px);}30%{transform:translateX(6px);}45%{transform:translateX(-4px);}60%{transform:translateX(4px);}75%{transform:translateX(-2px);}90%{transform:translateX(2px);}}
         optgroup{font-weight:700;font-style:normal;color:${C.navy};}
         option{font-weight:400;}
       `}</style>
@@ -721,17 +748,26 @@ export default function ListingGrader() {
 
           {/* Row 1: Platform + Mall */}
           <div className="sg" style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-            {[
-              { label: "Platform", val: platform, set: setPlatform, opts: [["shopee","Shopee"],["lazada","Lazada"]] },
-              { label: "Seller tier", val: mall, set: setMall, opts: [["regular","Regular seller"],["preferred","Preferred / Star seller"],["mall","Shopee Mall / LazMall"]] },
-            ].map(({ label, val, set, opts }) => (
-              <div key={label} style={{ flex: 1 }}>
-                <label style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: C.gray500, display: "block", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.6px" }}>{label}</label>
-                <select className="gi" value={val} onChange={e => set(e.target.value)} style={selectStyle}>
-                  {opts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
-              </div>
-            ))}
+            {/* Platform selector */}
+            <div style={{ flex: 1 }}>
+              <label style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: C.gray500, display: "block", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.6px" }}>Platform</label>
+              <select className="gi" value={platform} onChange={e => { setPlatform(e.target.value); setMall("regular"); }} style={selectStyle}>
+                <option value="shopee">Shopee</option>
+                <option value="lazada">Lazada</option>
+              </select>
+            </div>
+
+            {/* Seller tier — options depend on selected platform */}
+            <div style={{ flex: 1 }}>
+              <label style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: C.gray500, display: "block", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.6px" }}>Seller tier</label>
+              <select className="gi" value={mall} onChange={e => setMall(e.target.value)} style={selectStyle}>
+                <option value="regular">Regular seller</option>
+                {platform === "shopee" && <option value="preferred">⭐ Preferred / Star seller</option>}
+                {platform === "lazada" && <option value="preferred">⭐ LazPreferred seller</option>}
+                {platform === "shopee" && <option value="mall">🏪 Shopee Mall</option>}
+                {platform === "lazada" && <option value="mall">🏪 LazMall</option>}
+              </select>
+            </div>
           </div>
 
           {/* Row 2: Category + Brand type */}
@@ -783,14 +819,50 @@ export default function ListingGrader() {
           </div>
 
           {/* Product notes */}
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: C.gray500, display: "block", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.6px" }}>
-              Extra product details <span style={{ fontWeight: 400, textTransform: "none" }}>(optional — helps AI rewrite)</span>
+          <div style={{ marginBottom: 20, animation: notesHighlight ? "shake 0.5s ease" : "none" }}>
+            <label style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: notesHighlight ? C.amber : C.gray500, display: "block", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.6px", transition: "color 0.2s" }}>
+              Extra product details{" "}
+              <span style={{ fontWeight: 400, textTransform: "none", color: notesHighlight ? C.amber : C.gray500 }}>
+                {notesHighlight ? "⚠ Needed for a better AI rewrite — add details then click generate again" : "(recommended for AI rewrite)"}
+              </span>
             </label>
-            <input className="gi" type="text" value={notes} onChange={e => setNotes(e.target.value)}
+            <input ref={notesRef} className="gi" type="text" value={notes} onChange={e => { setNotes(e.target.value); if (notesHighlight) setNotesHighlight(false); }}
               placeholder={category === "batteries" ? "e.g. 10 year shelf life, for high-drain devices, EU certified" : category === "appliances" ? "e.g. 2 year local warranty, 8 colour options, works with Alexa, 220V SG plug" : "e.g. 2 year warranty, free gift included, ships same day"}
-              style={{ width: "100%", fontFamily: FONT, fontSize: 13, padding: "10px 14px", border: `1px solid ${C.gray200}`, borderRadius: 10, background: C.offWhite, color: C.gray900, transition: "border 0.2s, box-shadow 0.2s" }}
+              style={{ width: "100%", fontFamily: FONT, fontSize: 13, padding: "10px 14px", border: `1px solid ${notesHighlight ? C.gold : C.gray200}`, borderRadius: 10, background: notesHighlight ? `${C.gold}0e` : C.offWhite, color: C.gray900, transition: "border 0.2s, box-shadow 0.2s, background 0.2s", boxShadow: notesHighlight ? `0 0 0 3px ${C.gold}33` : "none" }}
             />
+            {/* Missing signal chips — only shown for Atsell specialist categories after grading */}
+            {result?.missingSignals?.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <p style={{ fontFamily: FONT, fontSize: 11, color: C.amber, fontWeight: 600, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  ✦ Add these to improve your title score:
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {result.missingSignals.map(({ label, question }) => {
+                    const alreadyInNotes = notes.toLowerCase().includes(question.split("?")[0].toLowerCase().slice(0, 15));
+                    return (
+                      <button
+                        key={label}
+                        onClick={() => {
+                          const prefix = notes.trim() ? notes.trim().replace(/,?\s*$/, "") + ", " : "";
+                          setNotes(prefix + question);
+                          notesRef.current?.focus();
+                        }}
+                        style={{
+                          fontFamily: FONT, fontSize: 12, fontWeight: 500,
+                          padding: "5px 12px", borderRadius: 100, cursor: "pointer",
+                          border: `1px solid ${alreadyInNotes ? C.green : C.gold}`,
+                          background: alreadyInNotes ? C.greenBg : `${C.gold}12`,
+                          color: alreadyInNotes ? C.green : C.amber,
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        {alreadyInNotes ? "✓ " : "+ "}{label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <button className="gb" onClick={grade} disabled={!title.trim()}
@@ -874,6 +946,14 @@ export default function ListingGrader() {
                     Claude rewrites using {cat.label.replace(/^[^\s]+\s/, "")} SEO rules{notes ? " + your product notes" : ""}
                     {cat.brandTypeRelevant && brandType !== "none" ? ` (${brandType} brand strategy)` : ""}
                   </p>
+                  {!notes.trim() && (
+                    <p style={{ fontFamily: FONT, fontSize: 12, color: C.amber, margin: "6px 0 0", display: "flex", alignItems: "center", gap: 5 }}>
+                      <span>💡</span>
+                      {result?.missingSignals?.length > 0
+                        ? "Fill in the missing details above — they'll be baked into your rewrite"
+                        : "Add product details above for a much better rewrite"}
+                    </p>
+                  )}
                 </div>
                 <button className="ab" onClick={getAIRewrite} disabled={aiLoading}
                   style={{ padding: "11px 22px", borderRadius: 10, border: "none", fontFamily: FONT, fontSize: 14, fontWeight: 600, background: C.navy, color: C.white, cursor: aiLoading ? "default" : "pointer", opacity: aiLoading ? 0.7 : 1, transition: "all 0.2s", whiteSpace: "nowrap", flexShrink: 0 }}>
