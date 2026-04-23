@@ -46,7 +46,7 @@ const CATS = {
     },
     niceToHave: {
       model: /\b([A-Z]{2,}\d{2,}|\d{2,}[A-Z]{2,}|[A-Z]+\d+[A-Z]*)\b/,
-      warranty: /\b(\d+.year.warranty|\d+.yr.warranty|warranty.included|comes.with.warranty|manufacturer.warranty|local.warranty|authorised|authorized)\b/i,
+      warranty: /\b(\d+.year.warranty|\d+.yr.warranty|warranty.included|comes.with.warranty|manufacturer.warranty|local.warranty)\b/i,
       color: /\b(black|white|grey|gray|red|cream|pastel|mint|pink|blue|silver|stainless|retro|vintage|50s|matte|glossy)\b/i,
     },
     warranty: true,
@@ -86,7 +86,7 @@ const CATS = {
       wireless: /\b(wireless|bluetooth|wifi|true wireless|tws|anc|noise cancel)\b/i,
     },
     warranty: true, sgMatters: true, brandTypeRelevant: false,
-    aiHints: "Brand and key spec are mandatory. Compatibility signals matter. For premium electronics, warranty and authorised dealer status are strong trust signals.",
+    aiHints: "Brand and key spec are mandatory. Compatibility signals matter. For premium electronics, warranty duration (e.g. '2 Year Warranty') is a strong trust and conversion signal.",
   },
 
   home: {
@@ -242,16 +242,25 @@ Object.entries(CATS).forEach(([key, cat]) => {
 });
 
 const BENEFIT_KW = /\b(waterproof|wireless|reusable|foldable|portable|adjustable|durable|lightweight|breathable|rechargeable|fast charge|quick charge|safe|non.slip|anti|eco.friendly|energy.saving|space.saving|multi.purpose|multipurpose|2.in.1|3.in.1)\b/i;
-const SG_SIGNAL = /\b(sg ready stock|sg\b|singapore|local seller|local stock|ready stock|in stock|fast delivery|same day|next day|authentic|genuine|100% original|authorized|authorised|official dealer|authorised dealer)\b/i;
+const SG_SIGNAL = /\b(sg ready stock|sg\b|singapore|local seller|local stock|ready stock|in stock|authentic|genuine|100% original)\b/i;
 const SPAM_CHARS = /[!@#$%^&*(){}<>|\\]{2,}|[!]{2,}/;
 const EXEMPT_CAPS = /\b(USB|HDMI|LED|4K|UHD|LCD|RAM|GPU|CPU|DIY|BPA|SGD|SSD|ANC|TWS|SPF|UVA|UVB|GMP|FDA|HSA|ISO|AHA|BHA|BCAA|NIMH|AA|AAA|CR\d+|LR\d+|DC|AC|RPM|DB)\b/g;
-const WARRANTY_RE = /\b(\d+.year.warranty|\d+.yr.warranty|warranty.included|comes.with.warranty|manufacturer.warranty|local.warranty|authorised.dealer|authorized.dealer|official.warranty)\b/i;
+const WARRANTY_RE = /\b(\d+.year.warranty|\d+.yr.warranty|warranty.included|comes.with.warranty|manufacturer.warranty|local.warranty)\b/i;
 
 function hasAllCaps(title) {
   return /\b[A-Z]{5,}\b/.test(title.replace(EXEMPT_CAPS, ""));
 }
 
 // ── Scoring ───────────────────────────────────────────────────────────────────
+// Mall tier logic:
+//   Regular seller  → standard thresholds. Grade A = 85+
+//   Preferred seller → slightly stricter. Grade A = 87+. Brand-first recommended.
+//   Mall / LazMall  → strictest. Grade A = 90+. Brand-first is a HARD requirement.
+//                     Missing it is a critical error, not a suggestion.
+//                     Mall badge gives algorithmic priority — title must convert that into clicks.
+//                     Mall sellers compete against other Mall sellers, not regular ones.
+//                     A Mall title scoring 77 is worse than a regular seller at 77.
+
 function scoreTitle(title, platform, mall, category, brandType) {
   if (!title) return null;
   const tl = title.toLowerCase();
@@ -259,33 +268,69 @@ function scoreTitle(title, platform, mall, category, brandType) {
   const len = title.length;
   const maxC = platform === "lazada" ? 255 : 150;
   const cat = CATS[category] || CATS.general;
-  const mallBonus = mall === "mall" ? 2 : mall === "preferred" ? 1 : 0;
+  const isMall = mall === "mall";
+  const isPreferred = mall === "preferred";
   const isLifestyle = brandType === "lifestyle";
   const isFunctional = brandType === "functional";
 
+  // Grade thresholds differ by tier
+  // Mall: A=90, B=77, C=62, D=45 — held to higher standard
+  // Preferred: A=87, B=73, C=58, D=42
+  // Regular: A=85, B=70, C=55, D=40
+  const gradeThresholds = isMall
+    ? { A: 90, B: 77, C: 62, D: 45 }
+    : isPreferred
+    ? { A: 87, B: 73, C: 58, D: 42 }
+    : { A: 85, B: 70, C: 55, D: 40 };
+
+  const criticalIssues = []; // shown with ✕ red — blocking issues
+  const issues = [];         // shown with ✕ red — standard issues
+
+  // ── Mall brand-first: HARD requirement ───────────────────────────────────
+  // For Mall/LazMall: brand must be the very first word(s).
+  // For Preferred: brand should be in first 35 chars — flagged if not.
+  // For Regular: brand anywhere in first 50 chars is fine.
+  const brandInFirst15 = /^[A-Z][a-zA-Z]{1,}/.test(title.trim());
+  const brandInFirst35 = /\b[A-Z][a-zA-Z]{1,}\b/.test(title.slice(0, 35));
+  const brandInFirst50 = /\b[A-Z][a-zA-Z]{1,}\b/.test(title.slice(0, 50));
+  const hasBrand = brandInFirst50;
+
+  if (isMall && !brandInFirst15) {
+    criticalIssues.push(`[Mall requirement] Brand name must be the first word — Mall listings without brand-first placement underperform and risk delisting`);
+  } else if (isPreferred && !brandInFirst35) {
+    issues.push(`Brand name should appear in the first 35 characters for Preferred seller listings`);
+  }
+
   // ── S: Search terms (25pts) ──────────────────────────────────────────────
+  // Mall sellers: keyword must be in first 50 chars (tighter than regular's 60)
+  // Mall sellers: no spam is strictly enforced — penalty is heavier
   let S = 0;
-  const sIssues = [];
   const hasPrimaryKW = cat.primaryKW.length === 0 || cat.primaryKW.some(k => tl.includes(k));
+  const kwFirst60 = cat.primaryKW.length === 0 || cat.primaryKW.some(k => title.slice(0, 60).toLowerCase().includes(k));
+  const kwFirst50 = cat.primaryKW.length === 0 || cat.primaryKW.some(k => title.slice(0, 50).toLowerCase().includes(k));
+  const hasSpam = SPAM_CHARS.test(title) || hasAllCaps(title);
+
   if (hasPrimaryKW) {
     S += 15;
-    const inFirst60 = cat.primaryKW.length === 0 || cat.primaryKW.some(k => title.slice(0, 60).toLowerCase().includes(k));
-    if (inFirst60) S += 5;
-    else sIssues.push(`Move the main ${cat.label} keyword into the first 60 characters`);
+    const kwInRange = isMall ? kwFirst50 : kwFirst60;
+    if (kwInRange) S += 5;
+    else issues.push(`Move main keyword into first ${isMall ? "50" : "60"} characters${isMall ? " — Mall buyers scan fast, keyword placement is critical" : ""}`);
   } else {
     const examples = cat.primaryKW.slice(0, 3).join('", "');
-    sIssues.push(`Add a specific keyword buyers search for (e.g. "${examples}")`);
+    issues.push(`Add a specific keyword buyers search for (e.g. "${examples}")`);
   }
-  if (!SPAM_CHARS.test(title) && !hasAllCaps(title)) S += 5;
-  else sIssues.push("Remove spam characters or excessive ALL CAPS");
+  if (!hasSpam) {
+    S += 5;
+  } else {
+    if (isMall) criticalIssues.push(`[Mall policy] Remove spam characters or excessive ALL CAPS — Mall listings are penalised more strictly for this`);
+    else issues.push("Remove spam characters or excessive ALL CAPS");
+  }
 
   // ── P: Product specifics (25pts) ─────────────────────────────────────────
+  // Mall sellers: ALL required attributes expected — missing any is flagged as critical
+  // Regular sellers: missing attributes are suggestions, not blockers
   let P = 0;
-  const pIssues = [];
   const reqEntries = Object.entries(cat.required);
-
-  // For lifestyle brands: boost color/aesthetic scoring weight
-  // For functional brands: boost spec/model scoring weight
   const ptsEach = reqEntries.length > 0 ? Math.floor(20 / reqEntries.length) : 20;
 
   reqEntries.forEach(([key, def]) => {
@@ -294,90 +339,156 @@ function scoreTitle(title, platform, mall, category, brandType) {
     if (re.test(title)) {
       P += ptsEach;
     } else {
-      // Lifestyle brand: color is more important
-      if (isLifestyle && key === "color") {
-        pIssues.unshift(`[Important for your brand] Add color/shade — lifestyle buyers choose by aesthetics`);
+      if (isMall) {
+        criticalIssues.push(`[Mall standard] Add ${label} — Mall buyers are more research-driven and expect complete product information`);
+      } else if (isLifestyle && key === "color") {
+        issues.unshift(`[Important for your brand] Add color/shade — lifestyle buyers choose by aesthetics`);
       } else {
-        pIssues.push(`Add ${label}`);
+        issues.push(`Add ${label}`);
       }
     }
   });
 
-  // Brand bonus (5pts)
-  const hasBrand = /\b[A-Z][a-zA-Z]{1,}\b/.test(title.slice(0, 50));
+  // Brand pts (5pts) — for categories that don't already require brand
   if (!reqEntries.some(([k]) => k === "brand")) {
     if (hasBrand) P += 5;
-    else pIssues.push("Include brand name");
+    else {
+      if (isMall) criticalIssues.push(`[Mall requirement] Include brand name — mandatory for Mall listings`);
+      else issues.push("Include brand name");
+    }
   }
 
-  // Lifestyle brand: model number bonus for appliances
+  // Functional appliance brand: model number
   if (category === "appliances" && isFunctional) {
     const hasModel = /\b([A-Z]{2,}\d{2,}|\d{2,}[A-Z]{2,}|[A-Z]+\d+[A-Z]*)\b/.test(title);
-    if (!hasModel) pIssues.push("Add model number — functional brand buyers often search by model");
+    if (!hasModel) {
+      if (isMall) issues.push("Add model number — Mall buyers frequently search by exact model");
+      else issues.push("Add model number — functional brand buyers often search by model");
+    }
+  }
+
+  // Mall: full attribute set required — penalise if less than 80% of required attrs present
+  const reqCount = reqEntries.length;
+  const metCount = reqEntries.filter(([, def]) => (def.re || def).test(title)).length;
+  if (isMall && reqCount > 0 && metCount / reqCount < 0.6) {
+    P = Math.floor(P * 0.8); // additional penalty for Mall with very incomplete specs
   }
 
   // ── I: Intent match (20pts) ──────────────────────────────────────────────
+  // Mall sellers: BOTH benefit AND differentiator are required for full score
+  // Regular sellers: one of the two is enough for partial score
   let I = 0;
-  const iIssues = [];
-
-  // Lifestyle brands: design/aesthetic language scores as intent
   const hasLifestyleIntent = isLifestyle && /\b(retro|vintage|50s|aesthetic|design|style|stylish|elegant|modern|classic|iconic|limited edition|pastel|matte|glossy)\b/i.test(title);
   const hasBenefit = BENEFIT_KW.test(title);
   const hasNiceToHave = Object.values(cat.niceToHave).some(re => re.test(title));
   const hasUseCase = /\b(for home|for office|for kitchen|for gym|for outdoor|for travel|for kids|for men|for women|for car|for pet|daily use|everyday|professional|commercial|heavy duty|multi.purpose)\b/i.test(title);
+  const hasWarranty = cat.warranty && WARRANTY_RE.test(title);
 
-  if (hasBenefit || hasNiceToHave || hasLifestyleIntent) I += 12;
+  const hasAnyIntent = hasBenefit || hasNiceToHave || hasLifestyleIntent;
+  const hasAnyContext = hasUseCase || hasNiceToHave || hasLifestyleIntent || hasWarranty;
+
+  if (hasAnyIntent) I += 12;
   else {
-    if (isLifestyle) iIssues.push("Add design/aesthetic keywords (e.g. 'Retro', '50s Style', color name) — lifestyle buyers choose by look");
-    else iIssues.push(`Add a benefit or feature keyword (e.g. ${category === "batteries" ? "'Long Lasting', 'High Drain', 'for Remote'" : category === "appliances" ? "'Fast Boil', 'Energy Saving', 'Auto Shutoff'" : "'Portable', 'Adjustable', 'Waterproof'"})`);
+    if (isMall) issues.push(`[Mall standard] Add benefit/feature keywords — Mall buyers compare listings carefully (e.g. ${category === "batteries" ? "'Long Lasting', 'High Drain'" : category === "appliances" ? "'Fast Boil', 'Energy Saving'" : "'Portable', 'Waterproof'"})`);
+    else if (isLifestyle) issues.push("Add design/aesthetic keywords (e.g. 'Retro', '50s Style') — lifestyle buyers choose by look");
+    else issues.push(`Add a benefit or feature keyword (e.g. ${category === "batteries" ? "'Long Lasting', 'High Drain', 'for Remote'" : category === "appliances" ? "'Fast Boil', 'Energy Saving', 'Auto Shutoff'" : "'Portable', 'Adjustable', 'Waterproof'"})`);
   }
-  if (hasUseCase || hasNiceToHave || hasLifestyleIntent) I += 8;
-  else iIssues.push("Add use-case or differentiating context");
 
-  // ── Warranty: scored within I for relevant categories ────────────────────
+  if (hasAnyContext) I += 8;
+  else {
+    if (isMall) issues.push("[Mall standard] Add a differentiating descriptor or use-case — your title competes against other Mall listings, not just regular sellers");
+    else issues.push("Add use-case or differentiating context");
+  }
+
+  // Warranty bonus (up to +3, capped at 20)
   if (cat.warranty) {
-    const hasWarranty = WARRANTY_RE.test(title);
-    if (hasWarranty) {
-      I = Math.min(20, I + 3); // bonus, not penalty
-    } else {
-      iIssues.push("Consider adding warranty duration — strong conversion signal for big-ticket items");
+    if (hasWarranty) I = Math.min(20, I + 3);
+    else {
+      if (isMall) issues.push("Add warranty duration — essential for Mall big-ticket items (e.g. '2 Year Local Warranty')");
+      else issues.push("Consider adding warranty duration — strong conversion signal for big-ticket items");
     }
   }
 
   // ── Ch: Character optimization (20pts) ───────────────────────────────────
+  // Mall sellers: ideal range is 80–120 (not 70–120) — more info expected
+  // Regular sellers: 70–120 ideal
   let Ch = 0;
-  const chIssues = [];
-  if (len > maxC) { Ch = 0; chIssues.push(`Exceeds ${maxC}-char limit — trim immediately (currently ${len} chars)`); }
-  else if (len >= 70 && len <= 120) { Ch = 20; }
-  else if (len > 120 && len <= maxC) { Ch = 14; chIssues.push(`Slightly long (${len} chars) — trim below 120 to avoid mobile truncation`); }
-  else if (len >= 50 && len < 70) { Ch = 10; chIssues.push(`A bit short (${len} chars) — expand with specs, variants, and benefits (aim 70–120)`); }
-  else { Ch = 4; chIssues.push(`Too short (${len} chars) — add product type, key specs, and features`); }
+  const mallMinIdeal = isMall ? 80 : 70;
+  if (len > maxC) {
+    Ch = 0;
+    issues.push(`Exceeds ${maxC}-char limit — trim immediately (currently ${len} chars)`);
+  } else if (len >= mallMinIdeal && len <= 120) {
+    Ch = 20;
+  } else if (len > 120 && len <= maxC) {
+    Ch = 14;
+    issues.push(`Slightly long (${len} chars) — trim below 120 to avoid mobile truncation`);
+  } else if (len >= 50 && len < mallMinIdeal) {
+    Ch = isMall ? 8 : 10;
+    issues.push(`${isMall ? `Too short for a Mall listing (${len} chars) — aim for 80–120 to include full specs and variants` : `A bit short (${len} chars) — expand with specs, variants, and benefits (aim 70–120)`}`);
+  } else {
+    Ch = 4;
+    issues.push(`Too short (${len} chars) — add product type, key specs, and features`);
+  }
 
   // ── E: Engagement hooks (10pts) ──────────────────────────────────────────
+  // SG signals: same category-aware logic, but Mall sellers shouldn't need "Ready Stock"
+  // since Mall badge already communicates authenticity and local fulfilment
   let E = 0;
-  const eIssues = [];
   const hasSG = SG_SIGNAL.test(title);
 
   if (cat.sgMatters) {
-    if (hasSG) E += 5;
-    else eIssues.push(`Add an SG trust signal — buyers in this category search for it (e.g. 'SG Ready Stock', 'Authorised Dealer')`);
+    if (isMall) {
+      // For Mall: "SG Ready Stock" is redundant (badge covers it) but still a minor positive
+      if (hasSG) E += 2;
+      // Not penalised for missing it — badge does the job
+    } else {
+      if (hasSG) E += 5;
+      else issues.push(`Add an SG trust signal — buyers in this category search for it (e.g. 'SG Ready Stock', 'Authentic')`);
+    }
   } else {
-    if (hasSG) E += 2;
-    // No penalty for missing it in non-sg-matters categories
+    if (hasSG) E += 1; // minor positive, not scored meaningfully for non-sg-matters cats
   }
 
   // Secondary keyword richness
+  // Mall: expect 10+ meaningful words; regular: 8+
   const meaningfulWords = words.filter(w => w.length > 3);
-  const richScore = Math.min(5, Math.floor((meaningfulWords.length / 8) * 5));
+  const mallRichTarget = isMall ? 10 : 8;
+  const richScore = Math.min(isMall ? 8 : 5, Math.floor((meaningfulWords.length / mallRichTarget) * (isMall ? 8 : 5)));
   E += richScore;
-  if (richScore < 3) eIssues.push("Add more descriptive keywords to improve search coverage");
+  if (richScore < (isMall ? 5 : 3)) {
+    issues.push(isMall
+      ? "Mall titles need richer keyword coverage — add specs, variants, and descriptors to hit 10+ meaningful words"
+      : "Add more descriptive keywords to improve search coverage"
+    );
+  }
 
-  const total = Math.min(100, S + P + I + Ch + E + mallBonus);
-  const grade = total >= 85 ? "A" : total >= 70 ? "B" : total >= 55 ? "C" : total >= 40 ? "D" : "F";
+  // ── Final score and grade ─────────────────────────────────────────────────
+  const rawTotal = Math.min(100, S + P + I + Ch + E);
+
+  // Mall utilization penalty: if a Mall seller scores below 70 raw,
+  // they're actively wasting their Mall advantage — apply a visibility note
+  const mallUnderutilized = isMall && rawTotal < 70;
+
+  const grade = rawTotal >= gradeThresholds.A ? "A"
+    : rawTotal >= gradeThresholds.B ? "B"
+    : rawTotal >= gradeThresholds.C ? "C"
+    : rawTotal >= gradeThresholds.D ? "D" : "F";
+
   const scores = { S, P, I, Ch, E };
-  const issues = [...sIssues, ...pIssues, ...iIssues, ...chIssues, ...eIssues];
+  const allIssues = [...criticalIssues, ...issues];
 
-  return { total, grade, scores, issues, len, maxC, mallBonus, cat };
+  return {
+    total: rawTotal,
+    grade,
+    gradeThresholds,
+    scores,
+    issues: allIssues,
+    criticalCount: criticalIssues.length,
+    len,
+    maxC,
+    mallUnderutilized,
+    cat,
+  };
 }
 
 // ── Spider chart ──────────────────────────────────────────────────────────────
@@ -453,16 +564,41 @@ async function fetchAIRewrite(title, platform, mall, category, brandType, issues
   const mallLabel = mall === "mall" ? (platform === "lazada" ? "LazMall" : "Shopee Mall") : mall === "preferred" ? "Preferred Seller" : "Regular Seller";
   const brandContext = cat.brandTypeRelevant
     ? brandType === "lifestyle" ? "\nBRAND TYPE: Lifestyle/design brand — color, aesthetic, and design language (e.g. 'Retro', '50s Style', specific color names) are MAJOR purchase drivers. Prioritize these alongside specs."
-    : brandType === "functional" ? "\nBRAND TYPE: Functional/performance brand — prioritize specs, capacity, energy efficiency, and model number. Warranty and authorized dealer status are strong conversion signals."
+    : brandType === "functional" ? "\nBRAND TYPE: Functional/performance brand — prioritize specs, capacity, energy efficiency, and model number. Warranty duration (e.g. '2 Year Local Warranty') is a strong conversion signal."
     : ""
     : "";
+
+  const isMall = mall === "mall";
+  const isPreferred = mall === "preferred";
+
+  const mallRules = isMall
+    ? `MALL REQUIREMENTS (non-negotiable):
+- Brand name MUST be the very first word
+- All key product specs must be included (appliance type, capacity, spec, voltage etc.)
+- Title should be 80–120 chars — Mall buyers expect comprehensive info
+- No spam, no ALL CAPS, no keyword stuffing
+- SG Ready Stock is NOT needed — the Mall badge already communicates this
+- Compete against other Mall titles, not regular sellers`
+    : isPreferred
+    ? `PREFERRED SELLER REQUIREMENTS:
+- Brand name should appear in first 35 chars
+- Complete product attributes expected
+- Title should be 70–120 chars
+- SG trust signals helpful where category-relevant`
+    : `REGULAR SELLER REQUIREMENTS:
+- Lead with strongest search keyword
+- Brand in first 50 chars
+- Title 70–120 chars
+- SG signals important for relevant categories`;
 
   const prompt = `You are an expert Shopee and Lazada SEO specialist for Singapore market sellers.
 
 Platform: ${platform === "lazada" ? "Lazada" : "Shopee"} (${mallLabel})
 Category: ${cat.label}
-Character limit: ${platform === "lazada" ? "255" : "150"} chars (ideal: 70–120)
+Character limit: ${platform === "lazada" ? "255" : "150"} chars
 ${brandContext}
+
+${mallRules}
 
 Current title: "${title}"
 
@@ -474,10 +610,9 @@ ${notes ? `Seller notes — MUST incorporate these: ${notes}` : ""}
 Category SEO intelligence:
 ${cat.aiHints}
 
-Rules:
-- Fix all listed issues
+Additional rules:
+- Fix all listed issues, prioritise critical ones first
 - Preserve accurate product details from the original
-- ${mall === "mall" ? "Brand name MUST be first" : "Strongest search keyword first"}
 - No keyword stuffing or word repetition
 - Natural, readable language
 - Stay within character limit
@@ -653,7 +788,7 @@ export default function ListingGrader() {
               Extra product details <span style={{ fontWeight: 400, textTransform: "none" }}>(optional — helps AI rewrite)</span>
             </label>
             <input className="gi" type="text" value={notes} onChange={e => setNotes(e.target.value)}
-              placeholder={category === "batteries" ? "e.g. 10 year shelf life, for high-drain devices, EU certified" : category === "appliances" ? "e.g. 2 year local warranty, authorised dealer, 8 colour options, works with Alexa" : "e.g. 2 year warranty, free gift included, ships same day"}
+              placeholder={category === "batteries" ? "e.g. 10 year shelf life, for high-drain devices, EU certified" : category === "appliances" ? "e.g. 2 year local warranty, 8 colour options, works with Alexa, 220V SG plug" : "e.g. 2 year warranty, free gift included, ships same day"}
               style={{ width: "100%", fontFamily: FONT, fontSize: 13, padding: "10px 14px", border: `1px solid ${C.gray200}`, borderRadius: 10, background: C.offWhite, color: C.gray900, transition: "border 0.2s, box-shadow 0.2s" }}
             />
           </div>
@@ -684,18 +819,38 @@ export default function ListingGrader() {
                     ))}
                   </div>
 
+                  {/* Grade context */}
+                  <div style={{ marginBottom: 12 }}>
+                    <p style={{ fontFamily: FONT, fontSize: 12, color: C.gray500, margin: "0 0 4px" }}>
+                      {mall === "mall" ? `Mall threshold: A ≥ 90 · B ≥ 77 · C ≥ 62` : mall === "preferred" ? `Preferred threshold: A ≥ 87 · B ≥ 73 · C ≥ 58` : `Standard threshold: A ≥ 85 · B ≥ 70 · C ≥ 55`}
+                    </p>
+                    {result.mallUnderutilized && (
+                      <div style={{ padding: "7px 12px", background: `${C.gold}18`, border: `1px solid ${C.gold}44`, borderRadius: 8, fontFamily: FONT, fontSize: 12, color: C.amber }}>
+                        ⚠ Your Mall badge gives algorithmic priority — but this title isn't strong enough to convert that visibility into clicks. Competitors with better titles will outperform you despite your Mall status.
+                      </div>
+                    )}
+                  </div>
+
                   <p style={{ fontFamily: FONT, fontSize: 13, fontWeight: 700, color: C.gray900, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10 }}>
-                    {result.issues.length === 0 ? "✓ No issues found" : `${result.issues.length} issue${result.issues.length > 1 ? "s" : ""} to fix`}
+                    {result.issues.length === 0 ? "✓ No issues found" : `${result.criticalCount > 0 ? `${result.criticalCount} critical · ` : ""}${result.issues.length - result.criticalCount} standard issue${result.issues.length - result.criticalCount !== 1 ? "s" : ""}`}
                   </p>
 
                   <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 20 }}>
                     {result.issues.length === 0 ? (
-                      <div style={{ padding: "8px 12px", background: C.greenBg, borderLeft: `3px solid ${C.green}`, borderRadius: "0 6px 6px 0", fontFamily: FONT, fontSize: 13, color: C.green, fontWeight: 500 }}>✓ Title is fully optimized</div>
-                    ) : result.issues.map((issue, i) => (
-                      <div key={i} style={{ display: "flex", gap: 8, padding: "8px 12px", background: issue.startsWith("[Important") ? `${C.gold}15` : C.redBg, borderLeft: `3px solid ${issue.startsWith("[Important") ? C.gold : "#e24b4a"}`, borderRadius: "0 6px 6px 0", fontFamily: FONT, fontSize: 13, color: issue.startsWith("[Important") ? C.amber : C.red }}>
-                        <span style={{ fontWeight: 700, flexShrink: 0 }}>{issue.startsWith("[Important") ? "★" : "✕"}</span>{issue}
-                      </div>
-                    ))}
+                      <div style={{ padding: "8px 12px", background: C.greenBg, borderLeft: `3px solid ${C.green}`, borderRadius: "0 6px 6px 0", fontFamily: FONT, fontSize: 13, color: C.green, fontWeight: 500 }}>✓ Title meets {mall === "mall" ? "Mall" : mall === "preferred" ? "Preferred seller" : "standard"} requirements</div>
+                    ) : result.issues.map((issue, i) => {
+                      const isCritical = issue.startsWith("[Mall") || issue.startsWith("[Important");
+                      const isImportant = issue.startsWith("[Important");
+                      const bg = isCritical && !isImportant ? "#fff0f0" : isImportant ? `${C.gold}15` : C.redBg;
+                      const border = isCritical && !isImportant ? "#c00" : isImportant ? C.gold : "#e24b4a";
+                      const color = isCritical && !isImportant ? "#8b0000" : isImportant ? C.amber : C.red;
+                      const icon = isCritical && !isImportant ? "🚫" : isImportant ? "★" : "✕";
+                      return (
+                        <div key={i} style={{ display: "flex", gap: 8, padding: "8px 12px", background: bg, borderLeft: `3px solid ${border}`, borderRadius: "0 6px 6px 0", fontFamily: FONT, fontSize: 13, color }}>
+                          <span style={{ fontWeight: 700, flexShrink: 0, fontSize: 12 }}>{icon}</span>{issue}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
