@@ -143,8 +143,14 @@ function NavBar({ scrolled }) {
                   <a key={label} href={href} onClick={(e) => {
                     e.preventDefault();
                     setToolsOpen(false);
-                    const target = document.querySelector(href);
-                    if (target) target.scrollIntoView({ behavior: "smooth" });
+                    setTimeout(() => {
+                      const target = document.querySelector(href);
+                      if (target) {
+                        const navHeight = 80;
+                        const top = target.getBoundingClientRect().top + window.scrollY - navHeight;
+                        window.scrollTo({ top, behavior: "smooth" });
+                      }
+                    }, 50);
                   }} style={{
                     display: "block", padding: "10px 14px", borderRadius: 8,
                     textDecoration: "none", transition: "background 0.15s",
@@ -211,8 +217,14 @@ function NavBar({ scrolled }) {
               <a key={label} href={href} onClick={(e) => {
                 e.preventDefault();
                 setMobileOpen(false);
-                const target = document.querySelector(href);
-                if (target) target.scrollIntoView({ behavior: "smooth" });
+                setTimeout(() => {
+                  const target = document.querySelector(href);
+                  if (target) {
+                    const navHeight = 80;
+                    const top = target.getBoundingClientRect().top + window.scrollY - navHeight;
+                    window.scrollTo({ top, behavior: "smooth" });
+                  }
+                }, 50);
               }} style={{
                 display: "block", color: COLORS.white, textDecoration: "none",
                 fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500,
@@ -1728,7 +1740,7 @@ export default function AtsellLanding() {
       <Results />
       <Testimonials />
       <Pricing />
-      <ListingGrader />
+      <div id="seo-grader"><ListingGrader /></div>
       <Calculator />
       <Footer />
     </div>
