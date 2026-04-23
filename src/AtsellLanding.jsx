@@ -140,7 +140,12 @@ function NavBar({ scrolled }) {
                   { label: "🧮 Calculator", href: "#calculator", desc: "ROI & fee estimator" },
                   { label: "📊 SEO Grader", href: "#seo-grader", desc: "Listing title scorer" },
                 ].map(({ label, href, desc }) => (
-                  <a key={label} href={href} onClick={() => setToolsOpen(false)} style={{
+                  <a key={label} href={href} onClick={(e) => {
+                    e.preventDefault();
+                    setToolsOpen(false);
+                    const target = document.querySelector(href);
+                    if (target) target.scrollIntoView({ behavior: "smooth" });
+                  }} style={{
                     display: "block", padding: "10px 14px", borderRadius: 8,
                     textDecoration: "none", transition: "background 0.15s",
                   }}
@@ -203,7 +208,12 @@ function NavBar({ scrolled }) {
               { label: "🧮 Calculator", href: "#calculator" },
               { label: "📊 SEO Grader", href: "#seo-grader" },
             ].map(({ label, href }) => (
-              <a key={label} href={href} onClick={() => setMobileOpen(false)} style={{
+              <a key={label} href={href} onClick={(e) => {
+                e.preventDefault();
+                setMobileOpen(false);
+                const target = document.querySelector(href);
+                if (target) target.scrollIntoView({ behavior: "smooth" });
+              }} style={{
                 display: "block", color: COLORS.white, textDecoration: "none",
                 fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500,
                 padding: "6px 0",
