@@ -95,7 +95,9 @@ function NavBar({ scrolled }) {
         height: scrolled ? 64 : 80, transition: "height 0.4s",
       }}>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <img src={LOGO_IMAGES.atsell} alt="Atsell" style={{ height: 36, width: "auto" }} />
+          <a href="https://atsell.io" style={{ display: "flex", alignItems: "center" }}>
+            <img src={LOGO_IMAGES.atsell} alt="Atsell" style={{ height: 36, width: "auto" }} />
+          </a>
         </div>
 
         {/* Desktop links */}
