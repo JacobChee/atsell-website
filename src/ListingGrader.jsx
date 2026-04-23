@@ -642,6 +642,7 @@ Additional rules:
 - No keyword stuffing or word repetition
 - Natural, readable language
 - Stay within character limit
+- ⚠ NEVER invent or assume product specs (warranty, model numbers, capacity, colours, shelf life, etc.) that are not in the original title or seller-provided details above. If a spec is missing, omit it — do NOT fabricate it. A title with fewer details is better than one with made-up facts.
 
 Return ONLY valid JSON, no markdown:
 {"rewritten":"the optimized title","changes":["specific change 1","specific change 2","specific change 3"],"reasoning":"one sentence on the core strategy"}`;
@@ -1040,6 +1041,15 @@ export default function ListingGrader() {
 
               {aiResult && !aiLoading && (
                 <div>
+                  {/* Fact-check warning for Atsell specialist categories */}
+                  {["batteries","appliances"].includes(category) && (
+                    <div style={{ padding: "10px 14px", background: "#fffbeb", border: `1px solid ${C.gold}88`, borderRadius: 10, marginBottom: 16, display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <span style={{ fontSize: 15, flexShrink: 0 }}>⚠️</span>
+                      <p style={{ fontFamily: FONT, fontSize: 12, color: C.amber, margin: 0, lineHeight: 1.6 }}>
+                        <strong>Verify before using.</strong> Check that all specs in the rewrite (warranty, capacity, model, colour, etc.) are accurate for this product. Do not copy details you haven't confirmed — incorrect specs mislead buyers and can lead to returns.
+                      </p>
+                    </div>
+                  )}
                   <div className="rg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
                     {[
                       { label: "Before", text: title, bg: C.redBg, border: "#e24b4a55", color: C.red },
