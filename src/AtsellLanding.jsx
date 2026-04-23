@@ -61,7 +61,26 @@ function useInView(threshold = 0.2) {
 
 function NavBar({ scrolled }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const links = ["Services", "Why Us", "Results", "Testimonials", "Pricing", "Calculator"];
+  const links = ["Services", "Why Us", "Results", "Testimonials", "Pricing"];
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const toolsRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClick(e) {
+      if (toolsRef.current && !toolsRef.current.contains(e.target)) setToolsOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const navLinkStyle = {
+    color: "rgba(255,255,255,0.8)", textDecoration: "none",
+    fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
+    letterSpacing: "0.5px", textTransform: "uppercase",
+    transition: "color 0.2s",
+  };
+
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
@@ -80,19 +99,62 @@ function NavBar({ scrolled }) {
         </div>
 
         {/* Desktop links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 32 }}
-          className="desktop-nav">
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }} className="desktop-nav">
           {links.map(l => (
-            <a key={l} href={`#${l.toLowerCase().replace(" ", "-")}`} style={{
-              color: "rgba(255,255,255,0.8)", textDecoration: "none",
-              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
-              letterSpacing: "0.5px", textTransform: "uppercase",
-              transition: "color 0.2s",
-            }}
+            <a key={l} href={`#${l.toLowerCase().replace(" ", "-")}`} style={navLinkStyle}
               onMouseEnter={e => e.target.style.color = COLORS.gold}
               onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.8)"}
             >{l}</a>
           ))}
+
+          {/* Free Tools dropdown */}
+          <div ref={toolsRef} style={{ position: "relative" }}>
+            <button
+              onClick={() => setToolsOpen(o => !o)}
+              style={{
+                ...navLinkStyle, background: "none", border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 5, padding: 0,
+                color: toolsOpen ? COLORS.gold : "rgba(255,255,255,0.8)",
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = COLORS.gold}
+              onMouseLeave={e => { if (!toolsOpen) e.currentTarget.style.color = "rgba(255,255,255,0.8)"; }}
+            >
+              Free Tools
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.2s", transform: toolsOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {/* Dropdown panel */}
+            {toolsOpen && (
+              <div style={{
+                position: "absolute", top: "calc(100% + 14px)", right: 0,
+                background: "rgba(21,42,69,0.98)", backdropFilter: "blur(16px)",
+                border: "1px solid rgba(232,168,56,0.2)", borderRadius: 12,
+                padding: "6px", minWidth: 200,
+                boxShadow: "0 16px 40px rgba(0,0,0,0.35)",
+                animation: "dropIn 0.18s ease",
+              }}>
+                <style>{`@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}`}</style>
+                {[
+                  { label: "🧮 Calculator", href: "#calculator", desc: "ROI & fee estimator" },
+                  { label: "📊 SEO Grader", href: "#seo-grader", desc: "Listing title scorer" },
+                ].map(({ label, href, desc }) => (
+                  <a key={label} href={href} onClick={() => setToolsOpen(false)} style={{
+                    display: "block", padding: "10px 14px", borderRadius: 8,
+                    textDecoration: "none", transition: "background 0.15s",
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(232,168,56,0.1)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: COLORS.white }}>{label}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{desc}</div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
           <a href="https://wa.me/6597121217?text=Hi%20Atsell%2C%20I%27d%20like%20to%20learn%20more%20about%20your%20ecommerce%20services." target="_blank" rel="noopener noreferrer" style={{
             padding: "10px 24px", borderRadius: 8,
             background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
@@ -134,6 +196,20 @@ function NavBar({ scrolled }) {
               padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.1)",
             }}>{l}</a>
           ))}
+          {/* Free Tools expanded in mobile */}
+          <div style={{ padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ color: "rgba(255,255,255,0.5)", fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 10 }}>Free Tools</div>
+            {[
+              { label: "🧮 Calculator", href: "#calculator" },
+              { label: "📊 SEO Grader", href: "#seo-grader" },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} onClick={() => setMobileOpen(false)} style={{
+                display: "block", color: COLORS.white, textDecoration: "none",
+                fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500,
+                padding: "6px 0",
+              }}>{label}</a>
+            ))}
+          </div>
         </div>
       )}
     </nav>
