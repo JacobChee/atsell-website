@@ -814,6 +814,84 @@ export default function ListingGrader() {
             {cat.sgMatters && " SG trust signals matter in this category."}
           </div>
 
+          {/* ── Atsell specialist: product detail fields shown before grading ── */}
+          {(() => {
+            const fields = {
+              batteries: [
+                { key: "capacity",  label: "💡 Capacity",     placeholder: "e.g. 2500mAh, 1.5V",           hint: "Matters for rechargeables" },
+                { key: "shelfLife", label: "⏳ Shelf life",    placeholder: "e.g. 10 year shelf life",       hint: "Strong trust signal for commodity buyers" },
+                { key: "useCase",   label: "🎯 Use case",      placeholder: "e.g. for remotes, cameras",     hint: "Helps buyers find the right product" },
+              ],
+              appliances_lifestyle: [
+                { key: "color",    label: "🎨 Colour",        placeholder: "e.g. Cream, Matte Black, Pastel Pink", hint: "Top purchase driver for design brands" },
+                { key: "model",    label: "🔢 Model number",  placeholder: "e.g. KLF03, SMF02",             hint: "Buyers search by model" },
+                { key: "warranty", label: "🛡 Warranty",      placeholder: "e.g. 2 year local warranty",    hint: "Conversion signal for high-ticket items" },
+              ],
+              appliances_functional: [
+                { key: "model",    label: "🔢 Model number",  placeholder: "e.g. KLF03, HD9252",            hint: "Functional brand buyers search by model" },
+                { key: "warranty", label: "🛡 Warranty",      placeholder: "e.g. 2 year local warranty",    hint: "Strong conversion signal" },
+                { key: "color",    label: "🎨 Colour",        placeholder: "e.g. Silver, Stainless, Black",  hint: "Secondary signal for functional brands" },
+              ],
+            };
+
+            const key = category === "batteries" ? "batteries"
+              : category === "appliances" && brandType === "lifestyle" ? "appliances_lifestyle"
+              : category === "appliances" && brandType === "functional" ? "appliances_functional"
+              : null;
+
+            // Appliances but no brand type chosen yet — prompt them
+            if (category === "appliances" && brandType === "none") {
+              return (
+                <div style={{ marginBottom: 14, padding: "10px 14px", background: `${C.gold}08`, border: `1px dashed ${C.gold}55`, borderRadius: 10, fontFamily: FONT, fontSize: 12, color: C.amber }}>
+                  ✦ Select a Brand Type above to unlock product detail fields that boost your AI rewrite
+                </div>
+              );
+            }
+
+            if (!key) return null;
+
+            const anyFilled = fields[key].some(f => signalAnswers[f.key]?.trim());
+
+            return (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontFamily: FONT, fontSize: 11, fontWeight: 700, color: C.amber, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    ✦ Product details
+                  </span>
+                  <span style={{ fontFamily: FONT, fontSize: 11, color: C.gray500 }}>
+                    — fill in what you know, these get baked into your AI rewrite
+                  </span>
+                </div>
+                <div style={{ background: `${C.gold}08`, border: `1px solid ${C.gold}33`, borderRadius: 10, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+                  {fields[key].map(({ key: fKey, label, placeholder, hint }) => (
+                    <div key={fKey} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <label style={{ fontFamily: FONT, fontSize: 12, fontWeight: 600, color: C.amber, minWidth: 116, flexShrink: 0 }}>{label}</label>
+                      <div style={{ flex: 1 }}>
+                        <input
+                          className="gi"
+                          type="text"
+                          value={signalAnswers[fKey] || ""}
+                          onChange={e => setSignalAnswers(prev => ({ ...prev, [fKey]: e.target.value }))}
+                          placeholder={placeholder}
+                          style={{ width: "100%", fontFamily: FONT, fontSize: 13, padding: "7px 12px", border: `1px solid ${signalAnswers[fKey]?.trim() ? C.green : C.gold}44`, borderRadius: 8, background: C.white, color: C.gray900, transition: "border 0.2s", boxSizing: "border-box" }}
+                        />
+                      </div>
+                      {signalAnswers[fKey]?.trim()
+                        ? <span style={{ color: C.green, fontSize: 14, flexShrink: 0 }}>✓</span>
+                        : <span style={{ fontFamily: FONT, fontSize: 10, color: C.gray500, flexShrink: 0, maxWidth: 90, lineHeight: 1.3, textAlign: "right" }}>{hint}</span>
+                      }
+                    </div>
+                  ))}
+                  {!anyFilled && (
+                    <p style={{ fontFamily: FONT, fontSize: 11, color: C.gray500, margin: "2px 0 0", fontStyle: "italic" }}>
+                      Optional — skip fields you don't know. Any filled detail will be included in your AI rewrite.
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Title */}
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
@@ -839,32 +917,6 @@ export default function ListingGrader() {
               placeholder={category === "batteries" ? "e.g. 10 year shelf life, for high-drain devices, EU certified" : category === "appliances" ? "e.g. 2 year local warranty, 8 colour options, works with Alexa, 220V SG plug" : "e.g. 2 year warranty, free gift included, ships same day"}
               style={{ width: "100%", fontFamily: FONT, fontSize: 13, padding: "10px 14px", border: `1px solid ${notesHighlight ? C.gold : C.gray200}`, borderRadius: 10, background: notesHighlight ? `${C.gold}0e` : C.offWhite, color: C.gray900, transition: "border 0.2s, box-shadow 0.2s, background 0.2s", boxShadow: notesHighlight ? `0 0 0 3px ${C.gold}33` : "none" }}
             />
-            {/* Missing signal inputs — only shown for Atsell specialist categories after grading */}
-            {result?.missingSignals?.length > 0 && (
-              <div style={{ marginTop: 12, padding: "12px 14px", background: `${C.gold}08`, border: `1px solid ${C.gold}33`, borderRadius: 10 }}>
-                <p style={{ fontFamily: FONT, fontSize: 11, color: C.amber, fontWeight: 700, margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  ✦ Fill in to boost your title score:
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {result.missingSignals.map(({ key, label, placeholder }) => (
-                    <div key={key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <label style={{ fontFamily: FONT, fontSize: 12, fontWeight: 600, color: C.amber, minWidth: 110, flexShrink: 0 }}>{label}</label>
-                      <input
-                        className="gi"
-                        type="text"
-                        value={signalAnswers[key] || ""}
-                        onChange={e => setSignalAnswers(prev => ({ ...prev, [key]: e.target.value }))}
-                        placeholder={placeholder}
-                        style={{ flex: 1, fontFamily: FONT, fontSize: 13, padding: "7px 12px", border: `1px solid ${signalAnswers[key]?.trim() ? C.green : C.gold}44`, borderRadius: 8, background: C.white, color: C.gray900, transition: "border 0.2s" }}
-                      />
-                      {signalAnswers[key]?.trim() && (
-                        <span style={{ color: C.green, fontSize: 14, flexShrink: 0 }}>✓</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           <button className="gb" onClick={grade} disabled={!title.trim()}
@@ -951,9 +1003,9 @@ export default function ListingGrader() {
                   {!notes.trim() && !Object.values(signalAnswers).some(v => v.trim()) && (
                     <p style={{ fontFamily: FONT, fontSize: 12, color: C.amber, margin: "6px 0 0", display: "flex", alignItems: "center", gap: 5 }}>
                       <span>💡</span>
-                      {result?.missingSignals?.length > 0
-                        ? "Fill in the missing details above — they'll be baked into your rewrite"
-                        : "Add product details above for a much better rewrite"}
+                      {["batteries","appliances"].includes(category)
+                        ? "Fill in the product details above the title for a much better rewrite"
+                        : "Add product details for a much better rewrite"}
                     </p>
                   )}
                 </div>
