@@ -470,18 +470,18 @@ function scoreTitle(title, platform, mall, category, brandType) {
   if (ATSELL_CATS.includes(category)) {
     const niceChecks = {
       batteries: [
-        { key: "capacity",  re: /\b(\d+\s?(mah|wh|v\b|ah))\b/i,        question: "What's the capacity? (e.g. 2500mAh, 3.6V)",        label: "💡 Capacity" },
-        { key: "shelfLife", re: /\b(\d+.year|long.shelf|shelf.life|expiry)\b/i, question: "What's the shelf life? (e.g. 10 year shelf life)", label: "⏳ Shelf life" },
-        { key: "useCase",   re: /\b(remote|controller|toy|camera|torch|flashlight|smoke|alarm|high.drain|everyday|industrial|medical|emergency)\b/i, question: "What device is it for? (e.g. for remotes, for cameras, high-drain devices)", label: "🎯 Use case" },
+        { key: "capacity",  re: /\b(\d+\s?(mah|wh|v\b|ah))\b/i,        label: "💡 Capacity",     placeholder: "e.g. 2500mAh, 1.5V" },
+        { key: "shelfLife", re: /\b(\d+.year|long.shelf|shelf.life|expiry)\b/i, label: "⏳ Shelf life",  placeholder: "e.g. 10 year shelf life" },
+        { key: "useCase",   re: /\b(remote|controller|toy|camera|torch|flashlight|smoke|alarm|high.drain|everyday|industrial|medical|emergency)\b/i, label: "🎯 Use case", placeholder: "e.g. for remotes, for cameras" },
       ],
       appliances: [
-        { key: "model",    re: /\b([A-Z]{2,}\d{2,}|\d{2,}[A-Z]{2,}|[A-Z]+\d+[A-Z]*)\b/, question: "What's the model number? (e.g. KLF03, HD9252)", label: "🔢 Model number" },
-        { key: "warranty", re: /\b(\d+.year.warranty|\d+.yr.warranty|warranty.included|comes.with.warranty|manufacturer.warranty|local.warranty)\b/i, question: "Is there a warranty? (e.g. 2 year local warranty)", label: "🛡 Warranty" },
-        { key: "color",    re: /\b(black|white|grey|gray|red|cream|pastel|mint|pink|blue|silver|stainless|retro|vintage|50s|matte|glossy)\b/i, question: "What colour is it? (e.g. Cream, Matte Black, Pastel Pink)", label: "🎨 Colour" },
+        { key: "model",    re: /\b([A-Z]{2,}\d{2,}|\d{2,}[A-Z]{2,}|[A-Z]+\d+[A-Z]*)\b/, label: "🔢 Model number", placeholder: "e.g. KLF03, HD9252" },
+        { key: "warranty", re: /\b(\d+.year.warranty|\d+.yr.warranty|warranty.included|comes.with.warranty|manufacturer.warranty|local.warranty)\b/i, label: "🛡 Warranty",      placeholder: "e.g. 2 year local warranty" },
+        { key: "color",    re: /\b(black|white|grey|gray|red|cream|pastel|mint|pink|blue|silver|stainless|retro|vintage|50s|matte|glossy)\b/i, label: "🎨 Colour",       placeholder: "e.g. Cream, Matte Black" },
       ],
     };
-    (niceChecks[category] || []).forEach(({ re, question, label }) => {
-      if (!re.test(title)) missingSignals.push({ question, label });
+    (niceChecks[category] || []).forEach(({ key, re, label, placeholder }) => {
+      if (!re.test(title)) missingSignals.push({ key, label, placeholder });
     });
   }
 
@@ -670,6 +670,7 @@ export default function ListingGrader() {
   const [animated, setAnimated] = useState(false);
   const [copied, setCopied] = useState(false);
   const [notesHighlight, setNotesHighlight] = useState(false);
+  const [signalAnswers, setSignalAnswers] = useState({});
   const resultRef = useRef(null);
   const notesRef = useRef(null);
 
@@ -686,16 +687,22 @@ export default function ListingGrader() {
     setAiError("");
     setAnimated(false);
     setCopied(false);
+    setSignalAnswers({});
     setTimeout(() => { setAnimated(true); resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
   }
 
   async function getAIRewrite() {
     if (!result) return;
+    // Merge signal answers into notes for the AI
+    const signalParts = Object.entries(signalAnswers)
+      .filter(([, v]) => v.trim())
+      .map(([k, v]) => v.trim());
+    const combinedNotes = [notes.trim(), ...signalParts].filter(Boolean).join(", ");
     setAiLoading(true);
     setAiError("");
     setAiResult(null);
     try {
-      const r = await fetchAIRewrite(title, platform, mall, category, brandType, result.issues, notes);
+      const r = await fetchAIRewrite(title, platform, mall, category, brandType, result.issues, combinedNotes);
       if (r) setAiResult(r);
       else setAiError("Could not parse AI response. Please try again.");
     } catch (e) {
@@ -830,36 +837,29 @@ export default function ListingGrader() {
               placeholder={category === "batteries" ? "e.g. 10 year shelf life, for high-drain devices, EU certified" : category === "appliances" ? "e.g. 2 year local warranty, 8 colour options, works with Alexa, 220V SG plug" : "e.g. 2 year warranty, free gift included, ships same day"}
               style={{ width: "100%", fontFamily: FONT, fontSize: 13, padding: "10px 14px", border: `1px solid ${notesHighlight ? C.gold : C.gray200}`, borderRadius: 10, background: notesHighlight ? `${C.gold}0e` : C.offWhite, color: C.gray900, transition: "border 0.2s, box-shadow 0.2s, background 0.2s", boxShadow: notesHighlight ? `0 0 0 3px ${C.gold}33` : "none" }}
             />
-            {/* Missing signal chips — only shown for Atsell specialist categories after grading */}
+            {/* Missing signal inputs — only shown for Atsell specialist categories after grading */}
             {result?.missingSignals?.length > 0 && (
-              <div style={{ marginTop: 8 }}>
-                <p style={{ fontFamily: FONT, fontSize: 11, color: C.amber, fontWeight: 600, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  ✦ Add these to improve your title score:
+              <div style={{ marginTop: 12, padding: "12px 14px", background: `${C.gold}08`, border: `1px solid ${C.gold}33`, borderRadius: 10 }}>
+                <p style={{ fontFamily: FONT, fontSize: 11, color: C.amber, fontWeight: 700, margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  ✦ Fill in to boost your title score:
                 </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {result.missingSignals.map(({ label, question }) => {
-                    const alreadyInNotes = notes.toLowerCase().includes(question.split("?")[0].toLowerCase().slice(0, 15));
-                    return (
-                      <button
-                        key={label}
-                        onClick={() => {
-                          const prefix = notes.trim() ? notes.trim().replace(/,?\s*$/, "") + ", " : "";
-                          setNotes(prefix + question);
-                          notesRef.current?.focus();
-                        }}
-                        style={{
-                          fontFamily: FONT, fontSize: 12, fontWeight: 500,
-                          padding: "5px 12px", borderRadius: 100, cursor: "pointer",
-                          border: `1px solid ${alreadyInNotes ? C.green : C.gold}`,
-                          background: alreadyInNotes ? C.greenBg : `${C.gold}12`,
-                          color: alreadyInNotes ? C.green : C.amber,
-                          transition: "all 0.15s",
-                        }}
-                      >
-                        {alreadyInNotes ? "✓ " : "+ "}{label}
-                      </button>
-                    );
-                  })}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {result.missingSignals.map(({ key, label, placeholder }) => (
+                    <div key={key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <label style={{ fontFamily: FONT, fontSize: 12, fontWeight: 600, color: C.amber, minWidth: 110, flexShrink: 0 }}>{label}</label>
+                      <input
+                        className="gi"
+                        type="text"
+                        value={signalAnswers[key] || ""}
+                        onChange={e => setSignalAnswers(prev => ({ ...prev, [key]: e.target.value }))}
+                        placeholder={placeholder}
+                        style={{ flex: 1, fontFamily: FONT, fontSize: 13, padding: "7px 12px", border: `1px solid ${signalAnswers[key]?.trim() ? C.green : C.gold}44`, borderRadius: 8, background: C.white, color: C.gray900, transition: "border 0.2s" }}
+                      />
+                      {signalAnswers[key]?.trim() && (
+                        <span style={{ color: C.green, fontSize: 14, flexShrink: 0 }}>✓</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -946,7 +946,7 @@ export default function ListingGrader() {
                     Claude rewrites using {cat.label.replace(/^[^\s]+\s/, "")} SEO rules{notes ? " + your product notes" : ""}
                     {cat.brandTypeRelevant && brandType !== "none" ? ` (${brandType} brand strategy)` : ""}
                   </p>
-                  {!notes.trim() && (
+                  {!notes.trim() && !Object.values(signalAnswers).some(v => v.trim()) && (
                     <p style={{ fontFamily: FONT, fontSize: 12, color: C.amber, margin: "6px 0 0", display: "flex", alignItems: "center", gap: 5 }}>
                       <span>💡</span>
                       {result?.missingSignals?.length > 0
