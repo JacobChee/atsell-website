@@ -1,3 +1,4 @@
+import ListingGrader from './ListingGrader';
 import { useState, useEffect, useRef } from "react";
 
 const COLORS = {
@@ -1641,6 +1642,7 @@ export default function AtsellLanding() {
       <Results />
       <Testimonials />
       <Pricing />
+      <ListingGrader />
       <Calculator />
       <Footer />
     </div>
