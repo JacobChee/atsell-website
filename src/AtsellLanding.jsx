@@ -1689,6 +1689,119 @@ function Footer() {
 
 // --- Main App ---
 
+function FAQ() {
+  const [ref, inView] = useInView(0.1);
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const faqs = [
+    {
+      q: "What is an ecommerce enabler?",
+      a: "An ecommerce enabler is a full-service partner that manages every aspect of a brand's online store on behalf of the brand. Unlike a software tool or a traditional agency, an enabler handles end-to-end operations: store setup, product listing optimisation, marketing, customer service, and logistics coordination — so brands can focus on their product while the enabler drives online sales.",
+    },
+    {
+      q: "Which marketplaces does Atsell manage?",
+      a: "Atsell is an official partner of Lazada, Shopee, and TikTok Shop — the three largest ecommerce marketplaces in Southeast Asia. We manage storefronts, run marketplace-specific ad campaigns, and participate in platform promotions across all three.",
+    },
+    {
+      q: "Which countries does Atsell operate in?",
+      a: "Atsell operates across four Southeast Asian markets: Singapore, Malaysia, Vietnam, and Thailand. We have local teams with on-the-ground knowledge of each market's consumer behaviour, platform nuances, and promotional calendars.",
+    },
+    {
+      q: "How is Atsell different from a marketing agency?",
+      a: "A marketing agency typically handles advertising only. Atsell takes full ownership of your ecommerce operation — from storefront setup and listing optimisation to customer support and live selling. We are measured on your revenue growth, not just ad spend or impressions.",
+    },
+    {
+      q: "What results can brands expect working with Atsell?",
+      a: "Across our active client base, brands see an average revenue growth of 156% after partnering with Atsell. Results vary by category, starting baseline, and market, but our KPI-driven model means we are directly incentivised to grow your numbers.",
+    },
+    {
+      q: "Do I need to already be selling online to work with Atsell?",
+      a: "No. Atsell works with brands at any stage — from those launching on a Southeast Asian marketplace for the first time to established sellers looking to scale. We handle the full setup process including store creation, content production, and account configuration.",
+    },
+    {
+      q: "How does Atsell's pricing work?",
+      a: "Atsell's pricing is tailored to each brand's scale, category, and the markets they want to enter. Book a free consultation through our website and our team will put together a proposal based on your specific situation.",
+    },
+    {
+      q: "How long does it take to launch a store with Atsell?",
+      a: "Most stores are live within 2–4 weeks of onboarding, depending on the marketplace, the number of SKUs, and the availability of brand assets. Our team manages the entire submission and approval process with the platforms.",
+    },
+  ];
+
+  return (
+    <section id="faq" ref={ref} style={{ background: COLORS.offWhite, padding: "100px 24px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gold,
+            textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700,
+          }}>FAQ</span>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)",
+            fontWeight: 700, color: COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2,
+          }}>Common questions answered</h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.gray500,
+            maxWidth: 520, margin: "0 auto", lineHeight: 1.6,
+          }}>
+            Everything you need to know about working with Atsell.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {faqs.map((faq, i) => {
+            const isOpen = openIndex === i;
+            return (
+              <div
+                key={i}
+                style={{
+                  background: COLORS.white, borderRadius: 16,
+                  border: `1px solid ${isOpen ? COLORS.gold : COLORS.gray200}`,
+                  overflow: "hidden",
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "translateY(0)" : "translateY(20px)",
+                  transition: `opacity 0.5s ease ${i * 0.05}s, transform 0.5s ease ${i * 0.05}s, border-color 0.2s`,
+                }}
+              >
+                <button
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center",
+                    justifyContent: "space-between", gap: 16,
+                    padding: "24px 28px", background: "none", border: "none",
+                    cursor: "pointer", textAlign: "left",
+                  }}
+                >
+                  <span style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 700,
+                    color: COLORS.navy, lineHeight: 1.4,
+                  }}>{faq.q}</span>
+                  <span style={{
+                    flexShrink: 0, width: 28, height: 28, borderRadius: "50%",
+                    background: isOpen ? `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})` : COLORS.gray100,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 18, fontWeight: 400, color: isOpen ? COLORS.navyDark : COLORS.gray500,
+                    transition: "all 0.2s",
+                    lineHeight: 1,
+                  }}>{isOpen ? "−" : "+"}</span>
+                </button>
+                {isOpen && (
+                  <div style={{ padding: "0 28px 24px" }}>
+                    <p style={{
+                      fontFamily: "'DM Sans', sans-serif", fontSize: 15,
+                      color: COLORS.gray500, lineHeight: 1.7, margin: 0,
+                    }}>{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function AtsellLanding() {
   const [scrolled, setScrolled] = useState(false);
 
@@ -1744,6 +1857,7 @@ export default function AtsellLanding() {
       <Pricing />
       <div id="seo-grader"><ListingGrader /></div>
       <Calculator />
+      <FAQ />
       <Footer />
     </div>
   );
