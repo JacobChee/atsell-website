@@ -59,6 +59,8 @@ export default function HowToSellOnLazadaSingapore() {
         .compare-table td { padding: 12px 18px; border-bottom: 1px solid #e2e6ee; color: ${GRAY_DARK}; vertical-align: top; }
         .compare-table tr:nth-child(even) td { background: ${OFF_WHITE}; }
         @media (max-width: 600px) { .compare-table { font-size: 13px; } .compare-table th, .compare-table td { padding: 10px 12px; } }
+        .art-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 1100px; margin: 0 auto; }
+        @media (max-width: 768px) { .art-grid { grid-template-columns: 1fr; gap: 40px; } }
       `}</style>
 
       <nav style={{ background: NAVY_DARK, padding: '0 24px', borderBottom: '1px solid rgba(232,168,56,0.15)' }}>
@@ -74,19 +76,30 @@ export default function HowToSellOnLazadaSingapore() {
       </nav>
 
       <article style={{ background: WHITE }}>
-        <div style={{ background: `linear-gradient(135deg, ${NAVY_DARK}, ${NAVY})`, padding: '64px 24px' }}>
-          <div style={{ maxWidth: 760, margin: '0 auto' }}>
-            <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>May 2026</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>·</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>8 min read</span>
+        <div style={{ background: `linear-gradient(135deg, ${NAVY_DARK}, ${NAVY})`, padding: '72px 24px' }}>
+          <div className="art-grid">
+            <div>
+              <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>May 2026</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>·</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>8 min read</span>
+              </div>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 44px)', fontWeight: 700, color: WHITE, lineHeight: 1.2, marginBottom: 20 }}>
+                How to Sell on Lazada in Singapore: Complete Guide (2026)
+              </h1>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+                From registering your seller account to running your first campaign — a practical guide from Atsell's Lazada management team.
+              </p>
             </div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 700, color: WHITE, lineHeight: 1.2, marginBottom: 20 }}>
-              How to Sell on Lazada in Singapore: Complete Guide (2026)
-            </h1>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>
-              From registering your Lazada seller account to running your first campaign — a practical guide from Atsell's Lazada management team.
-            </p>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: '36px 32px', border: '1px solid rgba(232,168,56,0.15)' }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700, marginBottom: 24 }}>Lazada SG fast facts</div>
+              {[['Free', 'to register as a Marketplace seller'], ['1–3 days', 'approval time for new accounts'], ['12+', 'mega campaigns per year (11.11, 12.12…)'], ['LazMall', 'premium tier for verified brands']].map(([val, label]) => (
+                <div key={val} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: GOLD, minWidth: 72, lineHeight: 1.2 }}>{val}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

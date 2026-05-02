@@ -43,6 +43,8 @@ export default function WhatIsAnEcommerceEnabler() {
         .prose li { font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.8; color: ${GRAY_DARK}; margin-bottom: 8px; }
         .prose strong { font-weight: 700; color: ${NAVY}; }
         .prose a { color: ${NAVY}; }
+        .art-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 1100px; margin: 0 auto; }
+        @media (max-width: 768px) { .art-grid { grid-template-columns: 1fr; gap: 40px; } }
       `}</style>
 
       <nav style={{ background: NAVY_DARK, padding: '0 24px', borderBottom: '1px solid rgba(232,168,56,0.15)' }}>
@@ -59,19 +61,30 @@ export default function WhatIsAnEcommerceEnabler() {
 
       <article style={{ background: WHITE }}>
         {/* Article header */}
-        <div style={{ background: `linear-gradient(135deg, ${NAVY_DARK}, ${NAVY})`, padding: '64px 24px' }}>
-          <div style={{ maxWidth: 760, margin: '0 auto' }}>
-            <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>May 2026</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>·</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>5 min read</span>
+        <div style={{ background: `linear-gradient(135deg, ${NAVY_DARK}, ${NAVY})`, padding: '72px 24px' }}>
+          <div className="art-grid">
+            <div>
+              <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>May 2026</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>·</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>5 min read</span>
+              </div>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 44px)', fontWeight: 700, color: WHITE, lineHeight: 1.2, marginBottom: 20 }}>
+                What Is an Ecommerce Enabler? (And Why Brands Use One)
+              </h1>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+                An ecommerce enabler takes full ownership of your marketplace stores — listings, ads, customer service, live selling. Here's when it makes sense.
+              </p>
             </div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 700, color: WHITE, lineHeight: 1.2, marginBottom: 20 }}>
-              What Is an Ecommerce Enabler? (And Why Brands Use One)
-            </h1>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>
-              An ecommerce enabler manages your marketplace stores end-to-end. Here's exactly what that means, how it differs from an agency, and when it makes sense for your brand.
-            </p>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: '36px 32px', border: '1px solid rgba(232,168,56,0.15)' }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700, marginBottom: 24 }}>Atsell at a glance</div>
+              {[['100+', 'brands managed across SEA'], ['156%', 'avg. month-on-month revenue growth'], ['5', 'markets: SG · MY · VN · TH · PH'], ['2019', 'operating since']].map(([val, label]) => (
+                <div key={val} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: GOLD, minWidth: 64 }}>{val}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

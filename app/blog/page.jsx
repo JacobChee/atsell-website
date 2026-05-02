@@ -72,15 +72,23 @@ export default function Blog() {
         </div>
       </nav>
 
-      <section style={{ background: `linear-gradient(135deg, ${NAVY_DARK}, ${NAVY})`, padding: '64px 24px' }}>
+      <section style={{ background: `linear-gradient(135deg, ${NAVY_DARK}, ${NAVY})`, padding: '64px 24px 48px' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>Atsell Blog</span>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 700, color: WHITE, margin: '12px 0 16px', lineHeight: 1.2 }}>
             Ecommerce insights from the operators
           </h1>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: 40 }}>
             Practical guides on selling across Shopee, Lazada, and TikTok Shop in Southeast Asia — written by the team that does it every day.
           </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 0, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 32, flexWrap: 'wrap' }}>
+            {[['4', 'in-depth guides'], ['3', 'platforms covered'], ['100+', 'brands managed']].map(([val, label]) => (
+              <div key={label} style={{ padding: '0 32px', borderRight: '1px solid rgba(255,255,255,0.12)', lastChild: { borderRight: 'none' } }}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: GOLD, lineHeight: 1 }}>{val}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>{label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
