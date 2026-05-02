@@ -71,20 +71,37 @@ export default function ShopeePartner() {
 
       {/* Hero */}
       <section style={{ background: `linear-gradient(135deg, ${NAVY_DARK}, ${NAVY})`, padding: '80px 24px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'inline-block', background: 'rgba(232,168,56,0.12)', border: '1px solid rgba(232,168,56,0.2)', borderRadius: 100, padding: '6px 18px', marginBottom: 24 }}>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, fontWeight: 600 }}>Official Shopee Partner</span>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }} className="grid-2">
+          <div>
+            <div style={{ display: 'inline-block', background: 'rgba(232,168,56,0.12)', border: '1px solid rgba(232,168,56,0.2)', borderRadius: 100, padding: '6px 18px', marginBottom: 24 }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, fontWeight: 600 }}>Official Shopee Partner</span>
+            </div>
+            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 700, color: WHITE, lineHeight: 1.15, marginBottom: 20 }}>
+              Shopee Store Management<br />
+              <span style={{ background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>that Drives Real Sales</span>
+            </h1>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 36 }}>
+              End-to-end Shopee management — listings, ads, Shopee Live, campaigns, and customer support across SG, MY, VN, and TH.
+            </p>
+            <a href="https://wa.me/6597121217?text=Hi%20Atsell%2C%20I%27d%20like%20to%20learn%20more%20about%20Shopee%20management." target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '16px 40px', borderRadius: 12, background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, color: NAVY_DARK, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>
+              Get a Free Shopee Consultation
+            </a>
           </div>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 700, color: WHITE, lineHeight: 1.15, marginBottom: 24 }}>
-            Shopee Store Management<br />
-            <span style={{ background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>that Drives Real Sales</span>
-          </h1>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 40, maxWidth: 600, margin: '0 auto 40px' }}>
-            Atsell is an official Shopee partner. We manage Shopee Mall and non-Mall stores end-to-end — listings, ads, Shopee Live, customer service, and campaign execution across Singapore, Malaysia, Vietnam, and Thailand.
-          </p>
-          <a href="https://wa.me/6597121217?text=Hi%20Atsell%2C%20I%27d%20like%20to%20learn%20more%20about%20Shopee%20management." target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '16px 40px', borderRadius: 12, background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, color: NAVY_DARK, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>
-            Get a Free Shopee Consultation
-          </a>
+          <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 24, padding: '40px 36px', border: '1px solid rgba(232,168,56,0.12)' }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700, marginBottom: 8 }}>Case study — Kingswood</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 24, lineHeight: 1.5 }}>Furniture brand, zero online presence → Shopee's top wardrobe seller</div>
+            {[
+              { value: '$10k+', label: 'Revenue in month 2' },
+              { value: '$50k+', label: 'Revenue in month 3' },
+              { value: '$90k+', label: 'Revenue in month 5' },
+              { value: '+456%', label: 'Month-on-month growth' },
+            ].map(({ value, label }, i, arr) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: WHITE }}>{value}</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)', maxWidth: 140, textAlign: 'right', lineHeight: 1.4 }}>{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
