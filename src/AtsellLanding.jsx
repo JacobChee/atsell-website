@@ -1725,10 +1725,13 @@ function Footer() {
               ]},
               { title: "Compare", links: [
                 { label: "Atsell vs SCI Ecommerce", href: "/vs/sci-ecommerce" },
+                { label: "Atsell vs aCommerce", href: "/vs/acommerce" },
+                { label: "Atsell vs Synagie", href: "/vs/synagie" },
+                { label: "Atsell vs LEAP Commerce", href: "/vs/leap-commerce" },
                 { label: "Atsell vs Anchanto", href: "/vs/anchanto" },
                 { label: "Atsell vs Intrepid", href: "/vs/intrepid" },
                 { label: "Atsell vs Ban Leong", href: "/vs/ban-leong" },
-                { label: "SCI Ecommerce Alternatives", href: "/alternatives/sci-ecommerce" },
+                { label: "All Alternatives", href: "/alternatives/sci-ecommerce" },
               ]},
             ].map((col, i) => (
               <div key={i}>
