@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "atsell",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "port": 3004,
+      "cwd": "C:\\Users\\User\\Documents\\Cowork Playground\\atsell"
+    }
+  ]
+}

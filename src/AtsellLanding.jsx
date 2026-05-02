@@ -63,6 +63,7 @@ function useInView(threshold = 0.2) {
 function NavBar({ scrolled }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const links = ["Services", "Why Us", "Results", "Testimonials", "Pricing"];
+  const extraLinks = [{ label: "Blog", href: "/blog" }];
   const [toolsOpen, setToolsOpen] = useState(false);
   const toolsRef = useRef(null);
 
@@ -108,6 +109,12 @@ function NavBar({ scrolled }) {
               onMouseEnter={e => e.target.style.color = COLORS.gold}
               onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.8)"}
             >{l}</a>
+          ))}
+          {extraLinks.map(({ label, href }) => (
+            <a key={label} href={href} style={navLinkStyle}
+              onMouseEnter={e => e.target.style.color = COLORS.gold}
+              onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.8)"}
+            >{label}</a>
           ))}
 
           {/* Free Tools dropdown */}
@@ -209,6 +216,13 @@ function NavBar({ scrolled }) {
               fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 500,
               padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.1)",
             }}>{l}</a>
+          ))}
+          {extraLinks.map(({ label, href }) => (
+            <a key={label} href={href} onClick={() => setMobileOpen(false)} style={{
+              color: COLORS.white, textDecoration: "none",
+              fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 500,
+              padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.1)",
+            }}>{label}</a>
           ))}
           {/* Free Tools expanded in mobile */}
           <div style={{ padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
@@ -1658,13 +1672,14 @@ function Footer() {
               ]},
               { title: "Company", links: [
                 { label: "About Us", href: "/#why-us" },
+                { label: "Blog", href: "/blog" },
                 { label: "Contact", href: "https://wa.me/6597121217" },
                 { label: "Privacy Policy", href: "/privacy" },
               ]},
               { title: "Marketplaces", links: [
-                { label: "Lazada", href: "https://www.lazada.sg/", external: true },
-                { label: "Shopee", href: "https://shopee.sg/", external: true },
-                { label: "TikTok Shop", href: "https://www.tiktok.com/business/en/tiktok-shop", external: true },
+                { label: "Lazada Partner", href: "/lazada-partner" },
+                { label: "Shopee Partner", href: "/shopee-partner" },
+                { label: "TikTok Shop Partner", href: "/tiktok-shop-partner" },
               ]},
             ].map((col, i) => (
               <div key={i}>

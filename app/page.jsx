@@ -52,6 +52,37 @@ export default function Home() {
           ]
         })}}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Client Reviews",
+          "itemListElement": [
+            {
+              "@type": "Review",
+              "position": 1,
+              "author": { "@type": "Person", "name": "Kelvin" },
+              "reviewBody": "Ecommerce talent is scarce, and turnover is high. A solid team would cost business owners at least USD 10,000/mth. This is why I'm glad to work with the Atsell team. They are true professionals in the ecommerce space and have supported me tremendously in scaling up my online business.",
+              "itemReviewed": { "@type": "Organization", "name": "Atsell", "url": "https://atsell.io" }
+            },
+            {
+              "@type": "Review",
+              "position": 2,
+              "author": { "@type": "Person", "name": "Hana" },
+              "reviewBody": "With Atsell's expertise and network, it has helped me to push my marketplace sales further and most importantly reduce my workload!",
+              "itemReviewed": { "@type": "Organization", "name": "Atsell", "url": "https://atsell.io" }
+            },
+            {
+              "@type": "Review",
+              "position": 3,
+              "author": { "@type": "Person", "name": "Eric" },
+              "reviewBody": "Thank you for the great support rendered to us for the past 6 months. Lirong helped us set up everything on the platform from zero to where we are today. We will continue to work closely with you to bring us to the next level!",
+              "itemReviewed": { "@type": "Organization", "name": "Atsell", "url": "https://atsell.io" }
+            }
+          ]
+        })}}
+      />
       <AtsellLanding />
     </>
   )
