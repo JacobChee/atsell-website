@@ -1,3 +1,4 @@
+'use client';
 import ListingGrader from './ListingGrader';
 import { useState, useEffect, useRef } from "react";
 
@@ -1830,8 +1831,6 @@ export default function AtsellLanding() {
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:wght@400;600;700;0,800&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
         body { overflow-x: hidden; }

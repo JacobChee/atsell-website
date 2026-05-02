@@ -3,17 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
-    "start": "react-scripts start"
+    "dev": "next dev --port 3004",
+    "build": "next build",
+    "start": "next start --port 3004"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
-  },
-  "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "next": "^15.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
