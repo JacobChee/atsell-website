@@ -16,6 +16,7 @@ export default function PrivacyPolicy() {
       <header style={{
         background: '#111b33', padding: '20px 24px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        position: 'sticky', top: 0, zIndex: 100,
       }}>
         <a href="/" style={{ textDecoration: 'none' }}>
           <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />

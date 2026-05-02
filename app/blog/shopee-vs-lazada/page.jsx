@@ -52,7 +52,7 @@ export default function ShopeeVsLazada() {
         @media (max-width: 768px) { .art-grid { grid-template-columns: 1fr; gap: 40px; } }
       `}</style>
 
-      <nav style={{ background: NAVY_DARK, padding: '0 24px', borderBottom: '1px solid rgba(232,168,56,0.15)' }}>
+      <nav style={{ background: NAVY_DARK, padding: '0 24px', borderBottom: '1px solid rgba(232,168,56,0.15)', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <a href="/" style={{ textDecoration: 'none' }}>
             <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />
