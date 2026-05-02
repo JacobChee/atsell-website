@@ -147,21 +147,10 @@ function NavBar({ scrolled }) {
               }}>
                 <style>{`@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}`}</style>
                 {[
-                  { label: "🧮 Calculator", href: "#calculator", desc: "ROI & fee estimator" },
-                  { label: "📊 SEO Grader", href: "#seo-grader", desc: "Listing title scorer" },
+                  { label: "🧮 Calculator", href: "/calculator", desc: "ROI & fee estimator" },
+                  { label: "📊 SEO Grader", href: "/seo-grader", desc: "Listing title scorer" },
                 ].map(({ label, href, desc }) => (
-                  <a key={label} href={href} onClick={(e) => {
-                    e.preventDefault();
-                    setToolsOpen(false);
-                    setTimeout(() => {
-                      const target = document.querySelector(href);
-                      if (target) {
-                        const navHeight = 80;
-                        const top = target.getBoundingClientRect().top + window.scrollY - navHeight;
-                        window.scrollTo({ top, behavior: "smooth" });
-                      }
-                    }, 50);
-                  }} style={{
+                  <a key={label} href={href} onClick={() => setToolsOpen(false)} style={{
                     display: "block", padding: "10px 14px", borderRadius: 8,
                     textDecoration: "none", transition: "background 0.15s",
                   }}
@@ -228,21 +217,10 @@ function NavBar({ scrolled }) {
           <div style={{ padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
             <div style={{ color: "rgba(255,255,255,0.5)", fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 10 }}>Free Tools</div>
             {[
-              { label: "🧮 Calculator", href: "#calculator" },
-              { label: "📊 SEO Grader", href: "#seo-grader" },
+              { label: "🧮 Calculator", href: "/calculator" },
+              { label: "📊 SEO Grader", href: "/seo-grader" },
             ].map(({ label, href }) => (
-              <a key={label} href={href} onClick={(e) => {
-                e.preventDefault();
-                setMobileOpen(false);
-                setTimeout(() => {
-                  const target = document.querySelector(href);
-                  if (target) {
-                    const navHeight = 80;
-                    const top = target.getBoundingClientRect().top + window.scrollY - navHeight;
-                    window.scrollTo({ top, behavior: "smooth" });
-                  }
-                }, 50);
-              }} style={{
+              <a key={label} href={href} onClick={() => setMobileOpen(false)} style={{
                 display: "block", color: COLORS.white, textDecoration: "none",
                 fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500,
                 padding: "6px 0",
