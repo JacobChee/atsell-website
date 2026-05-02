@@ -1617,6 +1617,70 @@ function Calculator() {
   );
 }
 
+function Compare() {
+  const comparisons = [
+    { label: "Atsell vs SCI Ecommerce", sub: "Scale vs boutique attention", href: "/vs/sci-ecommerce" },
+    { label: "Atsell vs Anchanto", sub: "Managed service vs SaaS platform", href: "/vs/anchanto" },
+    { label: "Atsell vs Intrepid", sub: "Marketplace focus vs broad digital", href: "/vs/intrepid" },
+    { label: "Atsell vs Ban Leong", sub: "Pure-play enabler vs IT distributor", href: "/vs/ban-leong" },
+  ];
+  return (
+    <section style={{ background: COLORS.offWhite, padding: "80px 24px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gold,
+            textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700,
+          }}>How We Compare</span>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif", fontSize: "clamp(26px, 3.5vw, 38px)",
+            fontWeight: 700, color: COLORS.navy, margin: "12px 0 12px",
+          }}>Evaluating your options?</h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: COLORS.gray500,
+            maxWidth: 480, margin: "0 auto",
+          }}>Honest, detailed comparisons against the other enablers brands consider.</p>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", marginBottom: 24 }}>
+          {comparisons.map(({ label, sub, href }) => (
+            <a key={href} href={href} style={{
+              display: "flex", flexDirection: "column", gap: 4,
+              background: COLORS.white, borderRadius: 14, padding: "20px 28px",
+              border: `1px solid ${COLORS.gray200}`, textDecoration: "none",
+              minWidth: 220, flex: "1 1 220px", maxWidth: 280,
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = COLORS.gold;
+              e.currentTarget.style.boxShadow = "0 8px 28px rgba(232,168,56,0.1)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = COLORS.gray200;
+              e.currentTarget.style.boxShadow = "none";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+            >
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, color: COLORS.navy,
+              }}>{label}</span>
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.gray500,
+              }}>{sub}</span>
+            </a>
+          ))}
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <a href="/alternatives/sci-ecommerce" style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.navy,
+            textDecoration: "underline", textUnderlineOffset: 3,
+          }}>See all ecommerce enabler alternatives →</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Footer() {
   return (
     <footer style={{
@@ -1658,6 +1722,13 @@ function Footer() {
                 { label: "Lazada Partner", href: "/lazada-partner" },
                 { label: "Shopee Partner", href: "/shopee-partner" },
                 { label: "TikTok Shop Partner", href: "/tiktok-shop-partner" },
+              ]},
+              { title: "Compare", links: [
+                { label: "Atsell vs SCI Ecommerce", href: "/vs/sci-ecommerce" },
+                { label: "Atsell vs Anchanto", href: "/vs/anchanto" },
+                { label: "Atsell vs Intrepid", href: "/vs/intrepid" },
+                { label: "Atsell vs Ban Leong", href: "/vs/ban-leong" },
+                { label: "SCI Ecommerce Alternatives", href: "/alternatives/sci-ecommerce" },
               ]},
             ].map((col, i) => (
               <div key={i}>
@@ -1866,6 +1937,7 @@ export default function AtsellLanding() {
       <div id="seo-grader"><ListingGrader /></div>
       <Calculator />
       <FAQ />
+      <Compare />
       <Footer />
     </div>
   );
