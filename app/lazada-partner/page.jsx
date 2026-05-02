@@ -30,6 +30,19 @@ export default function LazadaPartner() {
         "url": "https://atsell.io/lazada-partner"
       })}} />
 
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "What does a Lazada partner agency manage?", "acceptedAnswer": { "@type": "Answer", "text": "A Lazada partner agency like Atsell manages your entire Lazada operation: store setup, product listing creation and optimisation, Lazada Sponsored Solutions ads, campaign participation (11.11, 12.12, LazSale), customer service, and monthly performance reporting." } },
+          { "@type": "Question", "name": "What's the difference between LazMall and Lazada Marketplace?", "acceptedAnswer": { "@type": "Answer", "text": "LazMall is Lazada's premium brand storefront tier with an official badge, higher consumer trust, and access to exclusive campaigns. Lazada Marketplace has lower entry requirements and more pricing flexibility. Atsell manages both store types." } },
+          { "@type": "Question", "name": "Which markets does Atsell manage Lazada stores in?", "acceptedAnswer": { "@type": "Answer", "text": "Atsell manages Lazada stores in Singapore, Malaysia, Vietnam, and Thailand, with local operators and platform knowledge in each market." } },
+          { "@type": "Question", "name": "How long does it take to launch a Lazada store with Atsell?", "acceptedAnswer": { "@type": "Answer", "text": "Most clients are fully live within two to three weeks of onboarding, including store setup, product listing optimisation, ad account configuration, and a 60-day campaign plan." } },
+          { "@type": "Question", "name": "Do I need an existing Lazada account to work with Atsell?", "acceptedAnswer": { "@type": "Answer", "text": "No. Atsell can set up a new Lazada account from scratch, or take over management of an existing account. We assess your situation during onboarding." } },
+          { "@type": "Question", "name": "What results can I expect from Lazada store management?", "acceptedAnswer": { "@type": "Answer", "text": "Across our active client base, Atsell has delivered an average of 156% month-on-month revenue growth. Results depend on your product category and starting point." } }
+        ]
+      })}} />
+
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -137,6 +150,55 @@ export default function LazadaPartner() {
             {['Singapore', 'Malaysia', 'Vietnam', 'Thailand'].map(m => (
               <div key={m} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 16, padding: '24px 16px', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 700, color: WHITE }}>{m}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section style={{ background: WHITE, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>Process</span>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, color: NAVY, margin: '12px 0' }}>Up and running in 30 days</h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: GRAY, maxWidth: 540, margin: '0 auto' }}>From first call to live Lazada store, most clients are fully operational within three to four weeks.</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 40 }} className="grid-3">
+            {[
+              { step: '01', title: 'Onboarding & Audit', desc: 'We review your current Lazada setup, product catalogue, and top competitors. You get a clear action plan before anything goes live.' },
+              { step: '02', title: 'Store Setup & Launch', desc: 'We build or optimise your LazMall or Marketplace store, fix all listings, configure Sponsored Solutions, and go live — within 2–3 weeks.' },
+              { step: '03', title: 'Manage & Report', desc: 'Ongoing management with monthly reports: revenue, ad ROAS, keyword rankings, campaign performance, and clear next-step recommendations.' },
+            ].map(({ step, title, desc }) => (
+              <div key={step}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 56, fontWeight: 700, color: 'rgba(30,58,95,0.07)', lineHeight: 1, marginBottom: 16 }}>{step}</div>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: NAVY, marginBottom: 10 }}>{title}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: GRAY, lineHeight: 1.65 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ background: OFF_WHITE, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>FAQ</span>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, color: NAVY, margin: '12px 0' }}>Questions about Lazada store management</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { q: 'What does a Lazada partner agency manage?', a: 'A Lazada partner agency like Atsell manages your entire Lazada operation: store setup, product listing creation and optimisation, Lazada Sponsored Solutions ads, campaign participation (11.11, 12.12, LazSale), customer service, and monthly performance reporting. You hand off the day-to-day work entirely.' },
+              { q: "What's the difference between LazMall and Lazada Marketplace?", a: "LazMall is Lazada's premium brand storefront tier — it requires verification, carries an official badge, and delivers higher consumer trust and conversion. Lazada Marketplace has lower entry requirements and more pricing flexibility. Atsell manages both store types and advises on the right fit for your brand." },
+              { q: 'Which markets does Atsell manage Lazada stores in?', a: 'Atsell manages Lazada stores in Singapore, Malaysia, Vietnam, and Thailand. Each market has dedicated local operators with platform knowledge and regional campaign insight.' },
+              { q: 'How long does it take to launch a Lazada store with Atsell?', a: 'Most clients are fully live within two to three weeks of onboarding — including store setup or audit, full product listing optimisation, ad account configuration, and a 60-day campaign plan.' },
+              { q: 'Do I need an existing Lazada account to work with Atsell?', a: "No. Atsell can set up a brand-new Lazada account from scratch, or take over management of an existing account. We'll assess your situation during onboarding and recommend the best approach." },
+              { q: 'What results can I expect from Lazada store management?', a: "Across our active client base, Atsell has delivered an average of 156% month-on-month revenue growth. Results vary by category and starting point — we'll give you a realistic projection during the free consultation." },
+            ].map(({ q, a }) => (
+              <div key={q} style={{ background: WHITE, borderRadius: 16, padding: '28px 32px', border: '1px solid #e2e6ee' }}>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 700, color: NAVY, marginBottom: 10 }}>{q}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: GRAY, lineHeight: 1.7, margin: 0 }}>{a}</p>
               </div>
             ))}
           </div>

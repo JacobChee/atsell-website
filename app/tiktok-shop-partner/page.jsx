@@ -30,6 +30,19 @@ export default function TikTokShopPartner() {
         "url": "https://atsell.io/tiktok-shop-partner"
       })}} />
 
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "What is TikTok Shop and how does it work for brands?", "acceptedAnswer": { "@type": "Answer", "text": "TikTok Shop is TikTok's integrated commerce platform that lets brands sell products directly within the TikTok app through short videos, live streams, and a dedicated shop tab. Buyers purchase without leaving TikTok. Atsell manages the full operation: store setup, ads, affiliates, and live sessions." } },
+          { "@type": "Question", "name": "Do I need an existing TikTok following to sell on TikTok Shop?", "acceptedAnswer": { "@type": "Answer", "text": "No. TikTok Shop sales are driven primarily by paid TikTok Ads and affiliate creator content — not your account's organic following. Atsell runs ad campaigns and recruits creators to drive traffic to your products from day one." } },
+          { "@type": "Question", "name": "How does TikTok Shop affiliate marketing work?", "acceptedAnswer": { "@type": "Answer", "text": "The TikTok Shop affiliate programme lets creators earn commission for sales they drive by featuring your products in their videos. Atsell identifies and recruits relevant creators in your category, manages commission structures, and tracks affiliate performance and GMV." } },
+          { "@type": "Question", "name": "What markets does TikTok Shop operate in across SEA?", "acceptedAnswer": { "@type": "Answer", "text": "TikTok Shop is live in Singapore, Malaysia, Vietnam, Thailand, Indonesia, and the Philippines. Atsell manages TikTok Shop stores across Singapore, Malaysia, Vietnam, and Thailand." } },
+          { "@type": "Question", "name": "What TikTok ad formats are available for commerce?", "acceptedAnswer": { "@type": "Answer", "text": "TikTok offers Video Shopping Ads (shoppable videos in feed), LIVE Shopping Ads (promoting live sessions), and Product Shopping Ads (catalogue-based ads). Atsell manages all three and recommends the right mix based on your product and budget." } },
+          { "@type": "Question", "name": "How quickly can my brand start selling on TikTok Shop?", "acceptedAnswer": { "@type": "Answer", "text": "Most brands are live within two to three weeks of onboarding with Atsell — including TikTok Shop account setup, full product catalogue upload, initial affiliate recruitment, first live session, and running ad campaigns." } }
+        ]
+      })}} />
+
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -116,6 +129,71 @@ export default function TikTokShopPartner() {
               <div key={title} style={{ background: OFF_WHITE, borderRadius: 16, padding: 32, border: '1px solid #e2e6ee' }}>
                 <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: NAVY, marginBottom: 10 }}>{title}</h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: GRAY, lineHeight: 1.65 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section style={{ background: OFF_WHITE, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>Process</span>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, color: NAVY, margin: '12px 0' }}>Live on TikTok Shop in 30 days</h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: GRAY, maxWidth: 560, margin: '0 auto' }}>From first call to live store with running ads and an active affiliate roster — most brands are selling within three to four weeks.</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 40 }} className="grid-3">
+            {[
+              { step: '01', title: 'Onboarding & Strategy', desc: 'We audit your brand, products, and TikTok presence. You get a launch strategy covering store setup, ad direction, affiliate targets, and a live selling schedule.' },
+              { step: '02', title: 'Setup & First Live', desc: 'We set up your TikTok Shop, upload the full product catalogue, launch TikTok Ads, recruit initial affiliates, and run your first live session — within 2–3 weeks.' },
+              { step: '03', title: 'Scale & Report', desc: 'Ongoing management of ads, affiliates, and live sessions — with monthly reports on revenue, ad ROAS, affiliate GMV, and live performance.' },
+            ].map(({ step, title, desc }) => (
+              <div key={step}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 56, fontWeight: 700, color: 'rgba(30,58,95,0.07)', lineHeight: 1, marginBottom: 16 }}>{step}</div>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: NAVY, marginBottom: 10 }}>{title}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: GRAY, lineHeight: 1.65 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Markets */}
+      <section style={{ background: WHITE, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>Markets</span>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, color: NAVY, margin: '12px 0 16px' }}>TikTok Shop management across Southeast Asia</h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: GRAY, maxWidth: 560, margin: '0 auto 48px' }}>Local operators in each market with TikTok platform knowledge, creator networks, and regional consumer insights.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="grid-2">
+            {['Singapore', 'Malaysia', 'Vietnam', 'Thailand'].map(m => (
+              <div key={m} style={{ background: OFF_WHITE, borderRadius: 16, padding: '24px 16px', border: '1px solid #e2e6ee' }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 700, color: NAVY }}>{m}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ background: OFF_WHITE, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>FAQ</span>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, color: NAVY, margin: '12px 0' }}>Questions about TikTok Shop management</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { q: 'What is TikTok Shop and how does it work for brands?', a: "TikTok Shop is TikTok's integrated commerce platform. Brands list products and sell directly within the TikTok app — through short videos, live streams, and a dedicated shop tab. Buyers purchase without leaving TikTok. Atsell manages the full operation: store setup, ads, affiliates, and live sessions." },
+              { q: 'Do I need an existing TikTok following to sell on TikTok Shop?', a: "No. TikTok Shop sales are driven primarily by paid TikTok Ads and affiliate creator content — not your account's organic following. Atsell runs ad campaigns and recruits creators to drive traffic to your products from day one, regardless of your current follower count." },
+              { q: 'How does TikTok Shop affiliate marketing work?', a: 'The TikTok Shop affiliate programme lets creators earn commission for sales they drive by featuring your products in their videos. Atsell identifies and recruits relevant creators in your category, manages commission structures, and tracks affiliate performance and GMV.' },
+              { q: 'What markets does TikTok Shop operate in across SEA?', a: 'TikTok Shop is live in Singapore, Malaysia, Vietnam, Thailand, Indonesia, and the Philippines. Atsell currently manages TikTok Shop stores across Singapore, Malaysia, Vietnam, and Thailand.' },
+              { q: 'What TikTok ad formats are available for commerce?', a: 'TikTok offers Video Shopping Ads (shoppable videos in the feed), LIVE Shopping Ads (ads promoting your live sessions), and Product Shopping Ads (catalogue-based ads). Atsell manages all three and recommends the right mix based on your product and budget.' },
+              { q: 'How quickly can my brand start selling on TikTok Shop?', a: 'Most brands are live within two to three weeks of onboarding with Atsell — including TikTok Shop account setup, full product catalogue upload, initial affiliate recruitment, first live session, and running ad campaigns.' },
+            ].map(({ q, a }) => (
+              <div key={q} style={{ background: WHITE, borderRadius: 16, padding: '28px 32px', border: '1px solid #e2e6ee' }}>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 700, color: NAVY, marginBottom: 10 }}>{q}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: GRAY, lineHeight: 1.7, margin: 0 }}>{a}</p>
               </div>
             ))}
           </div>

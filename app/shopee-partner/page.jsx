@@ -30,6 +30,19 @@ export default function ShopeePartner() {
         "url": "https://atsell.io/shopee-partner"
       })}} />
 
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "What does Shopee store management include?", "acceptedAnswer": { "@type": "Answer", "text": "Shopee store management covers store setup, product listing optimisation, Shopee Ads management (Search, Discovery, Shop Ads), Shopee Live selling, campaign and voucher strategy, and full customer service — all managed end-to-end by Atsell." } },
+          { "@type": "Question", "name": "What is Shopee Mall and does my brand qualify?", "acceptedAnswer": { "@type": "Answer", "text": "Shopee Mall is Shopee's premium storefront tier for verified brands. It requires a registered business entity, brand verification, and meeting Shopee's quality standards. Atsell can advise on eligibility and manage the application process on your behalf." } },
+          { "@type": "Question", "name": "How does Shopee Live selling work?", "acceptedAnswer": { "@type": "Answer", "text": "Shopee Live is a real-time live stream shopping feature where professional hosts showcase products, answer viewer questions, and run flash deals during the stream. Atsell provides trained hosts, product scripts, scheduling, and post-stream analytics." } },
+          { "@type": "Question", "name": "Which markets does Atsell manage Shopee stores in?", "acceptedAnswer": { "@type": "Answer", "text": "Atsell manages Shopee stores in Singapore, Malaysia, Vietnam, and Thailand, with dedicated local operators in each market." } },
+          { "@type": "Question", "name": "How long does it take to launch on Shopee with Atsell?", "acceptedAnswer": { "@type": "Answer", "text": "Most clients are live within two to three weeks of onboarding — including store setup or audit, product listing optimisation, Shopee Ads configuration, and a 60-day campaign plan." } },
+          { "@type": "Question", "name": "What Shopee results have you achieved for brands?", "acceptedAnswer": { "@type": "Answer", "text": "Kingswood, a furniture brand new to ecommerce, grew from zero to over $90,000 in monthly Shopee revenue by month 5 — a 456% month-on-month growth rate. Across all Atsell clients, we deliver an average of 156% month-on-month revenue growth." } }
+        ]
+      })}} />
+
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -122,6 +135,55 @@ export default function ShopeePartner() {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: 'rgba(255,255,255,0.6)', fontStyle: 'italic', maxWidth: 600, margin: '0 auto' }}>
             "Ecommerce talent is scarce. A solid team would cost at least USD 10,000/mth. Atsell are true professionals and have supported me tremendously in scaling up my online business." — Kelvin, Kingswood
           </p>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section style={{ background: OFF_WHITE, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>Process</span>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, color: NAVY, margin: '12px 0' }}>Up and running in 30 days</h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: GRAY, maxWidth: 540, margin: '0 auto' }}>From first call to live Shopee store, most clients are fully operational within three to four weeks.</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 40 }} className="grid-3">
+            {[
+              { step: '01', title: 'Onboarding & Audit', desc: 'We review your current Shopee store, product catalogue, competitors, and ad account. You get a clear action plan before anything changes.' },
+              { step: '02', title: 'Optimise & Launch', desc: 'We fix all listings, configure Shopee Ads, plan your first live session, and set up campaigns — usually live within 2–3 weeks of onboarding.' },
+              { step: '03', title: 'Manage & Report', desc: 'Ongoing management with monthly reports: revenue, ad ROAS, live session performance, keyword rankings, and next-step recommendations.' },
+            ].map(({ step, title, desc }) => (
+              <div key={step}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 56, fontWeight: 700, color: 'rgba(30,58,95,0.07)', lineHeight: 1, marginBottom: 16 }}>{step}</div>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: NAVY, marginBottom: 10 }}>{title}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: GRAY, lineHeight: 1.65 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ background: WHITE, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>FAQ</span>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, color: NAVY, margin: '12px 0' }}>Questions about Shopee store management</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { q: 'What does Shopee store management include?', a: 'Shopee store management covers store setup and branding, product listing optimisation, Shopee Ads management (Search, Discovery, Shop Ads), Shopee Live selling, campaign and voucher strategy, and full customer service — all managed end-to-end by Atsell.' },
+              { q: 'What is Shopee Mall and does my brand qualify?', a: "Shopee Mall is Shopee's premium storefront tier for verified brands. It requires a registered business entity, brand verification, and meeting Shopee's quality and fulfilment standards. Atsell can advise on eligibility and manage the application process on your behalf." },
+              { q: 'How does Shopee Live selling work?', a: "Shopee Live is a real-time live stream shopping feature. Professional hosts showcase products, answer buyer questions, and run flash deals during the stream. Atsell provides trained hosts, product scripts, scheduling, and post-stream analytics to maximise each session's revenue." },
+              { q: 'Which markets does Atsell manage Shopee stores in?', a: 'Atsell manages Shopee stores in Singapore, Malaysia, Vietnam, and Thailand, with dedicated local operators in each market who understand regional buyer behaviour and campaign calendars.' },
+              { q: 'How long does it take to launch on Shopee with Atsell?', a: 'Most clients are live within two to three weeks of onboarding — including store setup or audit, full product listing optimisation, Shopee Ads configuration, and a 60-day campaign plan.' },
+              { q: 'What Shopee results have you achieved for brands?', a: "Kingswood, a furniture brand new to ecommerce, grew from zero to over $90,000 in monthly Shopee revenue by month 5 — a 456% month-on-month growth rate. Across all Atsell clients, we deliver an average of 156% month-on-month revenue growth." },
+            ].map(({ q, a }) => (
+              <div key={q} style={{ background: OFF_WHITE, borderRadius: 16, padding: '28px 32px', border: '1px solid #e2e6ee' }}>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 700, color: NAVY, marginBottom: 10 }}>{q}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: GRAY, lineHeight: 1.7, margin: 0 }}>{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

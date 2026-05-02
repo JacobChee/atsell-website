@@ -32,6 +32,20 @@ const posts = [
     date: 'May 2026',
     readTime: '7 min read',
   },
+  {
+    slug: 'shopee-listing-title-optimisation',
+    title: 'How to Optimise Your Shopee Listing Title (With Examples)',
+    excerpt: 'Your Shopee listing title is the single biggest ranking factor in Shopee search. Here\'s exactly how to write one that ranks and converts — with before-and-after examples.',
+    date: 'May 2026',
+    readTime: '6 min read',
+  },
+  {
+    slug: 'how-to-sell-on-lazada-singapore',
+    title: 'How to Sell on Lazada in Singapore: Complete Guide (2026)',
+    excerpt: 'Everything you need to know to set up a Lazada store in Singapore — from account registration and store types to listings, ads, and campaign participation.',
+    date: 'May 2026',
+    readTime: '8 min read',
+  },
 ]
 
 export default function Blog() {
