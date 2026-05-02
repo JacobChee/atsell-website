@@ -57,7 +57,7 @@ export default function TikTokShopPartner() {
       <nav style={{ background: NAVY_DARK, padding: '0 24px', borderBottom: '1px solid rgba(232,168,56,0.15)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <a href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: GOLD }}>Atsell</span>
+            <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />
           </a>
           <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
             {[['Lazada Partner', '/lazada-partner'], ['Shopee Partner', '/shopee-partner'], ['Blog', '/blog']].map(([label, href]) => (

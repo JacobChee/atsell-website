@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <a href="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: '#e8a838' }}>Atsell</span>
+          <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />
         </a>
         <nav style={{ display: 'flex', gap: 24 }}>
           {[['Services', '/#services'], ['Pricing', '/#pricing'], ['Contact', 'https://wa.me/6597121217']].map(([label, href]) => (
