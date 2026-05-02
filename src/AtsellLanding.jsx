@@ -314,11 +314,11 @@ function Hero() {
             fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px, 5vw, 62px)",
             fontWeight: 700, color: COLORS.white, lineHeight: 1.1, margin: "0 0 24px",
           }}>
-            Ecommerce Expertise.<br />
+            Southeast Asia's<br />
             <span style={{
               background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>AI-Enhanced.</span>
+            }}>Ecommerce Enabler.</span>
           </h1>
 
           <p style={{
@@ -1462,10 +1462,10 @@ function Calculator() {
         <div style={{ textAlign: "center", marginBottom: 48 }}>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: CALC_COLORS.gold, textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700 }}>Free Tool</span>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, color: CALC_COLORS.navy, margin: "12px 0 16px", lineHeight: 1.2 }}>
-            Marketplace fee calculator
+            Shopee, Lazada & TikTok Shop Fee Calculator
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: CALC_COLORS.gray500, maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
-            See exactly how much you keep after platform fees on Shopee and Lazada.
+            See exactly how much you keep after Shopee, Lazada, and TikTok Shop platform fees.
           </p>
         </div>
 
@@ -1649,9 +1649,22 @@ function Footer() {
 
           <div style={{ display: "flex", gap: 64, flexWrap: "wrap" }}>
             {[
-              { title: "Services", links: ["Store Management", "Marketing & Ads", "Customer Support", "Liveselling"] },
-              { title: "Company", links: ["About Us", "Contact"] },
-              { title: "Marketplaces", links: ["Lazada", "Shopee", "TiktokShop"] },
+              { title: "Services", links: [
+                { label: "Store Management", href: "/#services" },
+                { label: "Marketing & Ads", href: "/#services" },
+                { label: "Customer Support", href: "/#services" },
+                { label: "Liveselling", href: "/#services" },
+              ]},
+              { title: "Company", links: [
+                { label: "About Us", href: "/#why-us" },
+                { label: "Contact", href: "https://wa.me/6597121217" },
+                { label: "Privacy Policy", href: "/privacy" },
+              ]},
+              { title: "Marketplaces", links: [
+                { label: "Lazada", href: "https://www.lazada.sg/", external: true },
+                { label: "Shopee", href: "https://shopee.sg/", external: true },
+                { label: "TikTok Shop", href: "https://www.tiktok.com/business/en/tiktok-shop", external: true },
+              ]},
             ].map((col, i) => (
               <div key={i}>
                 <div style={{
@@ -1660,11 +1673,14 @@ function Footer() {
                   marginBottom: 16,
                 }}>{col.title}</div>
                 {col.links.map((l, j) => (
-                  <div key={j} style={{
-                    fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+                  <a key={j} href={l.href} target={l.external ? "_blank" : undefined} rel={l.external ? "noopener noreferrer" : undefined} style={{
+                    display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 14,
                     color: "rgba(255,255,255,0.5)", marginBottom: 10,
-                    cursor: "pointer",
-                  }}>{l}</div>
+                    textDecoration: "none", transition: "color 0.2s",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.85)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"}
+                  >{l.label}</a>
                 ))}
               </div>
             ))}
@@ -1680,7 +1696,7 @@ function Footer() {
           }}>© 2026 Atsell. All rights reserved.</span>
           <span style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.3)",
-          }}>Singapore · Vietnam</span>
+          }}>SG · MY · VN · TH · PH</span>
         </div>
       </div>
     </footer>
