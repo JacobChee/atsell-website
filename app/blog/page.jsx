@@ -33,6 +33,13 @@ const posts = [
     readTime: '7 min read',
   },
   {
+    slug: 'shopee-vs-tiktok-shop',
+    title: 'Shopee vs TikTok Shop: Which Platform Is Better for Your Brand?',
+    excerpt: 'Shopee is search-led. TikTok Shop is discovery-led. These two platforms operate on completely different engines — and the right choice depends on your product, content capability, and growth strategy.',
+    date: 'May 2026',
+    readTime: '7 min read',
+  },
+  {
     slug: 'shopee-listing-title-optimisation',
     title: 'How to Optimise Your Shopee Listing Title (With Examples)',
     excerpt: 'Your Shopee listing title is the single biggest ranking factor in Shopee search. Here\'s exactly how to write one that ranks and converts — with before-and-after examples.',
@@ -40,9 +47,23 @@ const posts = [
     readTime: '6 min read',
   },
   {
+    slug: 'what-is-shopee-mall',
+    title: 'What Is Shopee Mall and How to Get In',
+    excerpt: 'Shopee Mall is Shopee\'s verified brand store tier — reserved for brand owners and authorised distributors. Here\'s what the Mall badge actually does, who qualifies, and how to apply.',
+    date: 'May 2026',
+    readTime: '6 min read',
+  },
+  {
     slug: 'how-to-sell-on-lazada-singapore',
     title: 'How to Sell on Lazada in Singapore: Complete Guide (2026)',
     excerpt: 'Everything you need to know to set up a Lazada store in Singapore — from account registration and store types to listings, ads, and campaign participation.',
+    date: 'May 2026',
+    readTime: '8 min read',
+  },
+  {
+    slug: 'tiktok-shop-live-selling-tips',
+    title: 'TikTok Shop Live Selling Tips for Brands in Southeast Asia',
+    excerpt: 'Live selling is one of the highest-converting formats on TikTok Shop. Here are the session structures, host tactics, flash deal strategies, and common mistakes — from Atsell\'s live selling team.',
     date: 'May 2026',
     readTime: '8 min read',
   },
@@ -82,7 +103,7 @@ export default function Blog() {
             Practical guides on selling across Shopee, Lazada, and TikTok Shop in Southeast Asia — written by the team that does it every day.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 0, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 32, flexWrap: 'wrap' }}>
-            {[['4', 'in-depth guides'], ['3', 'platforms covered'], ['100+', 'brands managed']].map(([val, label]) => (
+            {[['7', 'in-depth guides'], ['3', 'platforms covered'], ['100+', 'brands managed']].map(([val, label]) => (
               <div key={label} style={{ padding: '0 32px', borderRight: '1px solid rgba(255,255,255,0.12)', lastChild: { borderRight: 'none' } }}>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: GOLD, lineHeight: 1 }}>{val}</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>{label}</div>
