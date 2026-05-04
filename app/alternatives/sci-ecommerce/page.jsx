@@ -101,6 +101,7 @@ export default function SCIAlternatives() {
           .grid-2 { grid-template-columns: 1fr !important; }
           .grid-3 { grid-template-columns: 1fr !important; }
           .compare-table { font-size: 13px !important; }
+          .nav-links { display: none !important; }
         }
       `}</style>
 
@@ -111,9 +112,11 @@ export default function SCIAlternatives() {
             <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />
           </a>
           <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            {[['Shopee Partner', '/shopee-partner'], ['Lazada Partner', '/lazada-partner'], ['TikTok Shop Partner', '/tiktok-shop-partner'], ['Blog', '/blog']].map(([label, href]) => (
-              <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
-            ))}
+            <div className="nav-links" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+              {[['Shopee Partner', '/shopee-partner'], ['Lazada Partner', '/lazada-partner'], ['TikTok Shop Partner', '/tiktok-shop-partner'], ['Blog', '/blog']].map(([label, href]) => (
+                <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
+              ))}
+            </div>
             <a href="https://wa.me/6597121217" target="_blank" rel="noopener noreferrer" style={{ padding: '9px 20px', borderRadius: 8, background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, color: NAVY_DARK, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Book a Call</a>
           </div>
         </div>

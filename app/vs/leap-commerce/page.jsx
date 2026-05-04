@@ -41,6 +41,7 @@ export default function AtsellVsLeapCommerce() {
           .grid-2 { grid-template-columns: 1fr !important; }
           .grid-3 { grid-template-columns: 1fr !important; }
           .compare-table { font-size: 13px !important; }
+          .nav-links { display: none !important; }
         }
       `}</style>
 
@@ -50,9 +51,11 @@ export default function AtsellVsLeapCommerce() {
             <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />
           </a>
           <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            {[['Shopee Partner', '/shopee-partner'], ['Lazada Partner', '/lazada-partner'], ['TikTok Shop Partner', '/tiktok-shop-partner'], ['Blog', '/blog']].map(([label, href]) => (
-              <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
-            ))}
+            <div className="nav-links" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+              {[['Shopee Partner', '/shopee-partner'], ['Lazada Partner', '/lazada-partner'], ['TikTok Shop Partner', '/tiktok-shop-partner'], ['Blog', '/blog']].map(([label, href]) => (
+                <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
+              ))}
+            </div>
             <a href="https://wa.me/6597121217" target="_blank" rel="noopener noreferrer" style={{ padding: '9px 20px', borderRadius: 8, background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, color: NAVY_DARK, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Book a Call</a>
           </div>
         </div>
@@ -62,6 +65,15 @@ export default function AtsellVsLeapCommerce() {
         <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'inline-block', background: 'rgba(232,168,56,0.12)', border: '1px solid rgba(232,168,56,0.2)', borderRadius: 100, padding: '6px 18px', marginBottom: 24 }}>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: GOLD, fontWeight: 600 }}>Comparison</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, margin: '8px 0 32px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 24px' }}>
+              <img src="/atsell-logo.png" alt="Atsell" style={{ height: 26, width: 'auto', display: 'block' }} />
+            </div>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 700, color: GOLD }}>vs</span>
+            <a href="https://leapcommerce.com" target="_blank" rel="nofollow noopener noreferrer" style={{ background: WHITE, borderRadius: 12, padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', minWidth: 120, minHeight: 46 }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: NAVY_DARK }}>LEAP Commerce</span>
+            </a>
           </div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(30px, 4vw, 50px)', fontWeight: 700, color: WHITE, lineHeight: 1.15, marginBottom: 20 }}>
             Atsell vs LEAP Commerce

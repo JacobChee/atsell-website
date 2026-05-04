@@ -109,6 +109,7 @@ export default function ShopeeVsLazada() {
           <p>Neither platform is disappearing. Both have hundreds of millions of users across the region. The question isn't which is "bigger" — it's which is the right fit for your product category and target buyer.</p>
 
           <h2>Side-by-side comparison</h2>
+          <div style={{ overflowX: 'auto' }}>
           <table className="compare-table">
             <thead>
               <tr>
@@ -137,6 +138,7 @@ export default function ShopeeVsLazada() {
               ))}
             </tbody>
           </table>
+          </div>
 
           <h2>When Shopee should be your primary platform</h2>
           <ul>

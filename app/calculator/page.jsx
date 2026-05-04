@@ -26,7 +26,7 @@ export default function CalculatorPage() {
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { overflow-x: hidden; -webkit-font-smoothing: antialiased; }
         .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 1100px; margin: 0 auto; }
-        @media (max-width: 768px) { .hero-grid { grid-template-columns: 1fr; gap: 32px; } }
+        @media (max-width: 768px) { .hero-grid { grid-template-columns: 1fr; gap: 32px; } .nav-links { display: none !important; } }
       `}</style>
 
       <nav style={{ background: NAVY_DARK, padding: '0 24px', borderBottom: '1px solid rgba(232,168,56,0.15)', position: 'sticky', top: 0, zIndex: 100 }}>
@@ -35,9 +35,11 @@ export default function CalculatorPage() {
             <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />
           </a>
           <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            {[['Shopee', '/shopee-partner'], ['Lazada', '/lazada-partner'], ['TikTok Shop', '/tiktok-shop-partner'], ['SEO Grader', '/seo-grader'], ['Blog', '/blog']].map(([label, href]) => (
-              <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
-            ))}
+            <div className="nav-links" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+              {[['Shopee', '/shopee-partner'], ['Lazada', '/lazada-partner'], ['TikTok Shop', '/tiktok-shop-partner'], ['SEO Grader', '/seo-grader'], ['Blog', '/blog']].map(([label, href]) => (
+                <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
+              ))}
+            </div>
             <a href="https://wa.me/6597121217" target="_blank" rel="noopener noreferrer" style={{ padding: '9px 20px', borderRadius: 8, background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, color: NAVY_DARK, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Book a Call</a>
           </div>
         </div>

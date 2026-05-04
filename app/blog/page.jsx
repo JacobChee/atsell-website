@@ -77,6 +77,7 @@ export default function Blog() {
         body { overflow-x: hidden; -webkit-font-smoothing: antialiased; }
         .blog-card { transition: box-shadow 0.2s; }
         .blog-card:hover { box-shadow: 0 8px 32px rgba(30,58,95,0.1); }
+        @media (max-width: 768px) { .nav-links { display: none !important; } }
       `}</style>
 
       <nav style={{ background: NAVY_DARK, padding: '0 24px', borderBottom: '1px solid rgba(232,168,56,0.15)', position: 'sticky', top: 0, zIndex: 100 }}>
@@ -85,9 +86,11 @@ export default function Blog() {
             <img src="/atsell-logo.png" alt="Atsell" style={{ height: 36, width: 'auto' }} />
           </a>
           <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            {[['Lazada Partner', '/lazada-partner'], ['Shopee Partner', '/shopee-partner'], ['TikTok Shop Partner', '/tiktok-shop-partner']].map(([label, href]) => (
-              <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
-            ))}
+            <div className="nav-links" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+              {[['Lazada Partner', '/lazada-partner'], ['Shopee Partner', '/shopee-partner'], ['TikTok Shop Partner', '/tiktok-shop-partner']].map(([label, href]) => (
+                <a key={label} href={href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{label}</a>
+              ))}
+            </div>
             <a href="https://wa.me/6597121217" target="_blank" rel="noopener noreferrer" style={{ padding: '9px 20px', borderRadius: 8, background: `linear-gradient(135deg, ${GOLD}, #f5c96a)`, color: NAVY_DARK, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Book a Call</a>
           </div>
         </div>

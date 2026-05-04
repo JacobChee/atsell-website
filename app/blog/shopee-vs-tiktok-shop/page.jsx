@@ -105,6 +105,7 @@ export default function ShopeeVsTikTokShop() {
           <p>This distinction matters more than any fee comparison or feature list. It shapes everything: your content strategy, your team requirements, your ad spend, and which products will perform.</p>
 
           <h2>Side-by-side comparison</h2>
+          <div style={{ overflowX: 'auto' }}>
           <table className="compare-table">
             <thead>
               <tr>
@@ -134,6 +135,7 @@ export default function ShopeeVsTikTokShop() {
               ))}
             </tbody>
           </table>
+          </div>
 
           <h2>When Shopee should be your primary platform</h2>
           <ul>
